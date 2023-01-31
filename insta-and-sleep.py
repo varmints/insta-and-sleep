@@ -9,51 +9,6 @@ from colorama import Fore, Style
 from simple_term_menu import TerminalMenu
 from instagrapi import Client
 
-# with open("creds.txt", "r") as f:
-#     username, password = f.read().splitlines()
-
-# client = Client()
-# client.login(username, password)
-
-
-# hashtag = "spicollective"
-# comments = ["Awesome", "Wonderful 💯", "This is such a moood !!!",
-#             "👍📷❤️", "Wow that looks so amazing 😍😍😍"]
-
-# medias = client.hashtag_medias_recent(hashtag, 20)
-
-# for i, media in enumerate(medias):
-#     client.media_like(media.id)
-#     print(f"Linked post number {i+1} of hashtag {hashtag}")
-#     if i % 5 == 0:
-#         client.user_follow(media.user.pk)
-#         print(f"Followed user {media.user.username}")
-#         comment = random.choice(comments)
-#         client.media_comment(media.id, comment)
-#         print(f"Commented {comment} under post number {i+1}")
-
-
-# insights_media_feed_all = client.insights_media_feed_all(
-#     "ALL", "THREE_MONTHS", "PROFILE_VIEW")
-
-# postId = insights_media_feed_all[1]["node"]["instagram_media_id"]
-
-# postInfo = client.media_info(postId).dict()
-# postCaption = postInfo["caption_text"]
-# postLocation = postInfo["location"]["pk"]
-
-# client.media_edit(postId, "", "", [], None)
-# print(f"clear post")
-# time.sleep(41)
-
-# print(json.dumps(postInfo, indent=2, sort_keys=True, default=str))
-# print(postCaption)
-# print(postLocation)
-# locationInfo = client.location_info(postLocation)
-# mediaInfo = client.media_edit(postId, postCaption, "", [], locationInfo)
-# print(f"post editet again")
-
-# print(json.dumps(mediaInfo, indent=2))
 
 def like_by_hashtag(hashtag):
 

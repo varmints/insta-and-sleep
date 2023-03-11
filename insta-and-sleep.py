@@ -67,7 +67,7 @@ def replace_caption_again(periodOfTime):
         location_info = client.location_info(postLocation)
         client.media_edit(postId, clean_hashtag, "", [], location_info)
         print(Fore.RED + f"Clear post ID: {postId} finished!")
-        time.sleep(25)
+        time.sleep(150)
         print(Style.RESET_ALL)
         print(f"Location: {location_info}")
         client.media_edit(postId, clean_spaces, "", [], location_info)

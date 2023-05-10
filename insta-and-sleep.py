@@ -10,17 +10,35 @@ from simple_term_menu import TerminalMenu
 from instagrapi import Client
 
 
+def createDevice():
+    print(f"You will be logged in!")
+    client = Client()
+    client.set_locale('pl_PL')
+    client.set_country_code(48)  # +48
+    # Los Angeles UTC (GMT) -7 hours == -25200 seconds
+    client.set_timezone_offset(2 * 60 * 60)
+    print(client.get_settings())
+    client.dump_settings("dump.json")
+
+
 def like_by_hashtag(hashtag):
 
     with open("creds.txt", "r") as f:
         username, password = f.read().splitlines()
     client = Client()
+    client.load_settings('dump.json')
     client.login(username, password)
+    client.get_timeline_feed()
+    print(Fore.GREEN + f"get_settings!")
+    print(Style.RESET_ALL)
+    print(client.get_settings())
+    print(f"user_info({client.user_id})!")
+    print(client.user_info(client.user_id))
 
     comments = ["Awesome", "Wonderful 💯", "This is such a moood !!!",
                 "👍📷❤️", "Wow that looks so amazing 😍😍😍"]
 
-    medias = client.hashtag_medias_recent(hashtag, 20)
+    medias = client.hashtag_medias_recent(hashtag, 10)
 
     for i, media in enumerate(medias):
         client.media_like(media.id)
@@ -39,10 +57,17 @@ def replace_caption_again(periodOfTime):
     with open("creds.txt", "r") as f:
         username, password = f.read().splitlines()
     client = Client()
+    client.load_settings('dump.json')
     client.login(username, password)
+    client.get_timeline_feed()
+    print(Fore.GREEN + f"get_settings!")
+    print(Style.RESET_ALL)
+    print(client.get_settings())
+    print(f"user_info({client.user_id})!")
+    print(client.user_info(client.user_id))
 
     insights_media_feed_all = client.insights_media_feed_all(
-        "ALL", periodOfTime, "LIKE_COUNT", 100, 20)
+        "IMAGE", periodOfTime, "REACH_COUNT", 100, 10)
     print(f"Found: {len(insights_media_feed_all)} media!")
 
     for i, post in enumerate(insights_media_feed_all):
@@ -67,7 +92,7 @@ def replace_caption_again(periodOfTime):
         location_info = client.location_info(postLocation)
         client.media_edit(postId, clean_hashtag, "", [], location_info)
         print(Fore.RED + f"Clear post ID: {postId} finished!")
-        time.sleep(150)
+        time.sleep(30)
         print(Style.RESET_ALL)
         print(f"Location: {location_info}")
         client.media_edit(postId, clean_spaces, "", [], location_info)
@@ -78,7 +103,7 @@ def replace_caption_again(periodOfTime):
 def main():
     main_menu_title = "  Insta & Sleep.\n  Press Q or Esc to quit. \n"
     main_menu_items = ["Replace caption",
-                       "Like 20 most recent posts by #hashtag", "Quit"]
+                       "Like 20 most recent posts by #hashtag", "Create device",  "Quit"]
     main_menu_cursor = "# "
     main_menu_cursor_style = ("fg_red", "bold")
     main_menu_style = ("bg_red", "fg_yellow")
@@ -179,7 +204,9 @@ def main():
                     like_by_hashtag_menu_back = True
                     print("Back Selected")
             like_by_hashtag_menu_back = False
-        elif main_sel == 2 or main_sel == None:
+        elif main_sel == 2:
+            createDevice()
+        elif main_sel == 3 or main_sel == None:
             main_menu_exit = True
             print("Quit Selected")
 

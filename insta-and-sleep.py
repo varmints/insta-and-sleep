@@ -9,6 +9,8 @@ from colorama import Fore, Style
 from simple_term_menu import TerminalMenu
 from instagrapi import Client
 
+# json.dumps(json.load(resp), indent=2)
+
 
 def createDevice():
     print(f"You will be logged in!")
@@ -64,7 +66,6 @@ def replace_caption_again(periodOfTime):
     print(Style.RESET_ALL)
     print(client.get_settings())
     print(f"user_info({client.user_id})!")
-    print(client.user_info(client.user_id))
 
     insights_media_feed_all = client.insights_media_feed_all(
         "IMAGE", periodOfTime, "REACH_COUNT", 100, 10)
@@ -92,7 +93,7 @@ def replace_caption_again(periodOfTime):
         location_info = client.location_info(postLocation)
         client.media_edit(postId, clean_hashtag, "", [], location_info)
         print(Fore.RED + f"Clear post ID: {postId} finished!")
-        time.sleep(30)
+        time.sleep(15)
         print(Style.RESET_ALL)
         print(f"Location: {location_info}")
         client.media_edit(postId, clean_spaces, "", [], location_info)
@@ -100,10 +101,41 @@ def replace_caption_again(periodOfTime):
         print(Style.RESET_ALL)
 
 
+def clearDmComments():
+    with open("creds.txt", "r") as f:
+        username, password = f.read().splitlines()
+    client = Client()
+    client.load_settings('dump.json')
+    client.login(username, password)
+    client.get_timeline_feed()
+    print(Fore.GREEN + f"get_settings!")
+    print(Style.RESET_ALL)
+    print(client.get_settings())
+    print(f"user_info({client.user_id})!")
+
+    insights_media_feed_all = client.insights_media_feed_all(
+        "IMAGE", "TWO_YEARS", "REACH_COUNT")
+    print(f"Found: {len(insights_media_feed_all)} media!")
+
+    for i, post in enumerate(insights_media_feed_all):
+        postId = post["node"]["instagram_media_id"]
+        print(f"Clear comment for post ID: {postId}")
+        comments = client.media_comments(postId)
+        commentsToDelete = []
+        for i, comment in enumerate(comments):
+            comment = comment.dict()
+            print(comment["text"])
+            if '@' in comment["text"]:
+                commentsToDelete.append(comment["pk"])
+        print(commentsToDelete)
+        if commentsToDelete:
+            client.comment_bulk_delete(postId, commentsToDelete)
+
+
 def main():
     main_menu_title = "  Insta & Sleep.\n  Press Q or Esc to quit. \n"
     main_menu_items = ["Replace caption",
-                       "Like 20 most recent posts by #hashtag", "Create device",  "Quit"]
+                       "Like 20 most recent posts by #hashtag", "Create device", "Clear DM comments", "Quit"]
     main_menu_cursor = "# "
     main_menu_cursor_style = ("fg_red", "bold")
     main_menu_style = ("bg_red", "fg_yellow")
@@ -206,7 +238,9 @@ def main():
             like_by_hashtag_menu_back = False
         elif main_sel == 2:
             createDevice()
-        elif main_sel == 3 or main_sel == None:
+        elif main_sel == 3:
+            clearDmComments()
+        elif main_sel == 4 or main_sel == None:
             main_menu_exit = True
             print("Quit Selected")
 

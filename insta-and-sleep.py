@@ -24,33 +24,37 @@ def createDevice():
 
 
 def like_by_hashtag(hashtag):
+    while True:
+        with open("creds.txt", "r") as f:
+            username, password = f.read().splitlines()
+        client = Client()
+        client.load_settings('dump.json')
+        client.login(username, password)
+        client.get_timeline_feed()
+        print(Fore.GREEN + f"get_settings!")
+        print(Style.RESET_ALL)
+        print(client.get_settings())
+        print(f"user_info({client.user_id})!")
+        print(client.user_info(client.user_id))
 
-    with open("creds.txt", "r") as f:
-        username, password = f.read().splitlines()
-    client = Client()
-    client.load_settings('dump.json')
-    client.login(username, password)
-    client.get_timeline_feed()
-    print(Fore.GREEN + f"get_settings!")
-    print(Style.RESET_ALL)
-    print(client.get_settings())
-    print(f"user_info({client.user_id})!")
-    print(client.user_info(client.user_id))
+        comments = ["Awesome", "Wonderful 💯", "This is such a moood !!!",
+                    "👍📷❤️", "Wow that looks so amazing 😍😍😍"]
 
-    comments = ["Awesome", "Wonderful 💯", "This is such a moood !!!",
-                "👍📷❤️", "Wow that looks so amazing 😍😍😍"]
+        medias = client.hashtag_medias_recent(hashtag, 6)
 
-    medias = client.hashtag_medias_recent(hashtag, 10)
-
-    for i, media in enumerate(medias):
-        client.media_like(media.id)
-        print(f"Linked post number {i+1} of hashtag {hashtag}")
-        if i % 5 == 0:
-            client.user_follow(media.user.pk)
-            print(f"Followed user {media.user.username}")
-            comment = random.choice(comments)
-            client.media_comment(media.id, comment)
-            print(f"Commented {comment} under post number {i+1}")
+        for i, media in enumerate(medias):
+            try:
+                client.media_like(media.id)
+                print(f"Linked post number {i+1} of hashtag {hashtag}")
+                if i % 2 == 0:
+                    client.user_follow(media.user.pk)
+                    print(f"Followed user {media.user.username}")
+                    comment = random.choice(comments)
+                    client.media_comment(media.id, comment)
+                    print(f"Commented {comment} under post number {i+1}")
+            except:
+                continue
+        time.sleep(3600)
 
 
 def replace_caption_again(periodOfTime):
@@ -100,6 +104,8 @@ def replace_caption_again(periodOfTime):
         print(Fore.GREEN + f"The post ID: {postId} has been edited again")
         print(Style.RESET_ALL)
 
+    client.logout()
+
 
 def clearDmComments():
     with open("creds.txt", "r") as f:
@@ -131,11 +137,55 @@ def clearDmComments():
         if commentsToDelete:
             client.comment_bulk_delete(postId, commentsToDelete)
 
+    client.logout()
+
+
+def clearFollowing():
+    with open("creds.txt", "r") as f:
+        username, password = f.read().splitlines()
+    client = Client()
+    client.load_settings('dump.json')
+    client.login(username, password)
+    client.get_timeline_feed()
+    print(Fore.GREEN + f"get_settings!")
+    print(Style.RESET_ALL)
+    print(client.get_settings())
+    print(f"user_info({client.user_id})!")
+
+    followers = client.user_followers(client.user_id).keys()
+    following = client.user_following(client.user_id).keys()
+
+    users_to_delete = []
+
+    for i, user in enumerate(following):
+        print(i, user)
+        if user not in followers:
+            users_to_delete.append(user)
+
+    print(f"Users to delete:")
+    print(users_to_delete)
+
+    for user in users_to_delete:
+        try:
+            print(user)
+            user_info = client.user_info(user)
+            client.user_unfollow(user)
+            print(f"Succes unfollow user: {user_info.username}")
+        except:
+            client.load_settings('dump.json')
+            client.login(username, password)
+            client.get_timeline_feed()
+            print(user)
+            user_info = client.user_info(user)
+            client.user_unfollow(user)
+            print(f"Succes unfollow user: {user_info.username}")
+    client.logout()
+
 
 def main():
     main_menu_title = "  Insta & Sleep.\n  Press Q or Esc to quit. \n"
     main_menu_items = ["Replace caption",
-                       "Like 20 most recent posts by #hashtag", "Create device", "Clear DM comments", "Quit"]
+                       "Like 20 most recent posts by #hashtag", "Create device", "Clear DM comments", "Clear useless Following", "Quit"]
     main_menu_cursor = "# "
     main_menu_cursor_style = ("fg_red", "bold")
     main_menu_style = ("bg_red", "fg_yellow")
@@ -167,7 +217,7 @@ def main():
 
     like_by_hashtag_menu_title = "  Choose #hashtag.\n  Press Q or Esc to back to main menu. \n"
     like_by_hashtag_menu_items = [
-        "spicollective", "streetphotography", "flor", "spi_geometry", "lensculture", "Back to Main Menu"]
+        "spicollective", "streetphotography", "flor", "spi_geometry", "lensculture", "fujifilm", "Back to Main Menu"]
     like_by_hashtag_menu_back = False
     like_by_hashtag_menu = TerminalMenu(
         like_by_hashtag_menu_items,
@@ -232,7 +282,12 @@ def main():
                         f"You have selected {like_by_hashtag_menu_items[like_by_hashtag_sel]}!")
                     like_by_hashtag(
                         like_by_hashtag_menu_items[like_by_hashtag_sel])
-                elif like_by_hashtag_sel == 5 or like_by_hashtag_sel == None:
+                elif like_by_hashtag_sel == 5:
+                    print(
+                        f"You have selected {like_by_hashtag_menu_items[like_by_hashtag_sel]}!")
+                    like_by_hashtag(
+                        like_by_hashtag_menu_items[like_by_hashtag_sel])
+                elif like_by_hashtag_sel == 6 or like_by_hashtag_sel == None:
                     like_by_hashtag_menu_back = True
                     print("Back Selected")
             like_by_hashtag_menu_back = False
@@ -240,7 +295,9 @@ def main():
             createDevice()
         elif main_sel == 3:
             clearDmComments()
-        elif main_sel == 4 or main_sel == None:
+        elif main_sel == 4:
+            clearFollowing()
+        elif main_sel == 5 or main_sel == None:
             main_menu_exit = True
             print("Quit Selected")
 

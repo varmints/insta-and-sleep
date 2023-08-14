@@ -53,8 +53,12 @@ def like_by_hashtag(hashtag):
                     client.media_comment(media.id, comment)
                     print(f"Commented {comment} under post number {i+1}")
             except:
+                client.load_settings('dump.json')
+                client.login(username, password)
+                client.get_timeline_feed()
                 continue
         time.sleep(3600)
+        client.logout()
 
 
 def replace_caption_again(periodOfTime):
@@ -72,7 +76,7 @@ def replace_caption_again(periodOfTime):
     print(f"user_info({client.user_id})!")
 
     insights_media_feed_all = client.insights_media_feed_all(
-        "IMAGE", periodOfTime, "REACH_COUNT", 100, 10)
+        "ALL", periodOfTime, "REACH_COUNT", 100, 10)
     print(f"Found: {len(insights_media_feed_all)} media!")
 
     for i, post in enumerate(insights_media_feed_all):

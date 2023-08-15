@@ -8,6 +8,7 @@ import re
 from colorama import Fore, Style
 from simple_term_menu import TerminalMenu
 from instagrapi import Client
+from datetime import datetime
 
 # json.dumps(json.load(resp), indent=2)
 
@@ -38,12 +39,14 @@ def like_by_hashtag(hashtag):
         print(client.user_info(client.user_id))
 
         comments = ["Awesome", "Wonderful 💯", "This is such a moood !!!",
-                    "👍📷❤️", "Wow that looks so amazing 😍😍😍"]
+                    "👍📷❤️", "Wow that looks so amazing 😍😍😍", "Stunning shot🔥",
+                    "I really like this one!", "I like the mood 🖖", "Nice!"]
 
         medias = client.hashtag_medias_recent(hashtag, 6)
 
         for i, media in enumerate(medias):
             try:
+                print(datetime.now().strftime("%H:%M:%S"))
                 client.media_like(media.id)
                 print(f"Linked post number {i+1} of hashtag {hashtag}")
                 if i % 2 == 0:
@@ -53,12 +56,14 @@ def like_by_hashtag(hashtag):
                     client.media_comment(media.id, comment)
                     print(f"Commented {comment} under post number {i+1}")
             except:
+                print(datetime.now().strftime("%H:%M:%S"))
+                print("Except")
                 client.load_settings('dump.json')
                 client.login(username, password)
                 client.get_timeline_feed()
                 continue
-        time.sleep(3600)
         client.logout()
+        time.sleep(3600)
 
 
 def replace_caption_again(periodOfTime):

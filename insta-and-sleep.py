@@ -161,26 +161,36 @@ def clearFollowing():
     print(client.get_settings())
     print(f"user_info({client.user_id})!")
 
-    followers = client.user_followers(client.user_id).keys()
-    following = client.user_following(client.user_id).keys()
+    followers = client.user_followers_v1(client.user_id)
+    followers_arr = []
+    for i, user in enumerate(followers):
+        followers_arr.append(user.pk)
+
+    following = client.user_following_v1(client.user_id)
+    following_arr = []
+    for i, user in enumerate(following):
+        following_arr.append(user.pk)
 
     users_to_delete = []
 
-    for i, user in enumerate(following):
+    for i, user in enumerate(following_arr):
         print(i, user)
-        if user not in followers:
+        if user not in followers_arr:
             users_to_delete.append(user)
 
+    print(datetime.now().strftime("%H:%M:%S"))
     print(f"Users to delete:")
     print(users_to_delete)
 
     for user in users_to_delete:
+        print(datetime.now().strftime("%H:%M:%S"))
         try:
             print(user)
             user_info = client.user_info(user)
             client.user_unfollow(user)
             print(f"Succes unfollow user: {user_info.username}")
         except:
+            print("Except")
             client.load_settings('dump.json')
             client.login(username, password)
             client.get_timeline_feed()

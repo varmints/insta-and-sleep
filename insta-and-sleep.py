@@ -7,87 +7,135 @@ import os
 import re
 from colorama import Fore, Style
 from simple_term_menu import TerminalMenu
-from instagrapi import Client
 from datetime import datetime
+import logging
+from instagrapi import Client
+from instagrapi.exceptions import LoginRequired
 
-# json.dumps(json.load(resp), indent=2)
+# json.sessions(json.load(resp), indent=2)
+logger = logging.getLogger()
 
 
 def createDevice():
     print(f"You will be logged in!")
-    client = Client()
-    client.set_locale('pl_PL')
-    client.set_country_code(48)  # +48
+    cl = Client()
+    cl.set_locale('pl_PL')
+    cl.set_country_code(48)  # +48
     # Los Angeles UTC (GMT) -7 hours == -25200 seconds
-    client.set_timezone_offset(2 * 60 * 60)
-    print(client.get_settings())
-    client.dump_settings("dump.json")
+    cl.set_timezone_offset(2 * 60 * 60)
+    print(cl.get_settings())
+    cl.session_settings("session.json")
+
+
+def login_user(cl):
+    """
+    Attempts to login to Instagram using either the provided session information
+    or the provided username and password.
+    """
+
+    with open("creds.txt", "r") as f:
+        USERNAME, PASSWORD = f.read().splitlines()
+    cl.delay_range = [5, 30]
+    session = cl.load_settings("session.json")
+
+    login_via_session = False
+    login_via_pw = False
+
+    if session:
+        try:
+            cl.set_settings(session)
+            cl.login(USERNAME, PASSWORD)
+
+            # check if session is valid
+            try:
+                cl.get_timeline_feed()
+            except LoginRequired:
+                logger.info(
+                    "Session is invalid, need to login via username and password")
+
+                old_session = cl.get_settings()
+
+                # use the same device uuids across logins
+                cl.set_settings({})
+                cl.set_uuids(old_session["uuids"])
+
+                cl.login(USERNAME, PASSWORD)
+            login_via_session = True
+        except Exception as e:
+            logger.info(
+                "Couldn't login user using session information: %s" % e)
+
+    if not login_via_session:
+        try:
+            logger.info(
+                "Attempting to login via username and password. username: %s" % USERNAME)
+            if cl.login(USERNAME, PASSWORD):
+                login_via_pw = True
+        except Exception as e:
+            logger.info(
+                "Couldn't login user using username and password: %s" % e)
+
+    if not login_via_pw and not login_via_session:
+        raise Exception("Couldn't login user with either password or session")
 
 
 def like_by_hashtag(hashtag):
+    cl = Client()
+
+    login_user(cl)
+
     while True:
-        with open("creds.txt", "r") as f:
-            username, password = f.read().splitlines()
-        client = Client()
-        client.load_settings('dump.json')
-        client.login(username, password)
-        client.get_timeline_feed()
-        print(Fore.GREEN + f"get_settings!")
-        print(Style.RESET_ALL)
-        print(client.get_settings())
-        print(f"user_info({client.user_id})!")
-        print(client.user_info(client.user_id))
+
+        print(f"user_info({cl.user_id})!")
+        print(cl.user_info(cl.user_id))
 
         comments = ["Awesome", "Wonderful 💯", "This is such a moood !!!",
                     "👍📷❤️", "Wow that looks so amazing 😍😍😍", "Stunning shot🔥",
                     "I really like this one!", "I like the mood 🖖", "Nice!"]
 
-        medias = client.hashtag_medias_recent(hashtag, 6)
+        try:
+            medias = cl.hashtag_medias_recent_v1(hashtag, 6)
+        except:
+            print(datetime.now().strftime("%H:%M:%S"))
+            print("Except 1")
+            time.sleep(3600)
+            continue
 
         for i, media in enumerate(medias):
             try:
                 print(datetime.now().strftime("%H:%M:%S"))
-                client.media_like(media.id)
+                cl.media_like(media.id)
                 print(f"Linked post number {i+1} of hashtag {hashtag}")
                 if i % 2 == 0:
-                    client.user_follow(media.user.pk)
+                    cl.user_follow(media.user.pk)
                     print(f"Followed user {media.user.username}")
                     comment = random.choice(comments)
-                    client.media_comment(media.id, comment)
+                    cl.media_comment(media.id, comment)
                     print(f"Commented {comment} under post number {i+1}")
             except:
                 print(datetime.now().strftime("%H:%M:%S"))
-                print("Except")
-                client.load_settings('dump.json')
-                client.login(username, password)
-                client.get_timeline_feed()
+                print("Except 2")
+                login_user(cl)
                 continue
-        client.logout()
         time.sleep(3600)
 
 
 def replace_caption_again(periodOfTime):
     print(f"You have selected {periodOfTime}!")
 
-    with open("creds.txt", "r") as f:
-        username, password = f.read().splitlines()
-    client = Client()
-    client.load_settings('dump.json')
-    client.login(username, password)
-    client.get_timeline_feed()
-    print(Fore.GREEN + f"get_settings!")
-    print(Style.RESET_ALL)
-    print(client.get_settings())
-    print(f"user_info({client.user_id})!")
+    cl = Client()
 
-    insights_media_feed_all = client.insights_media_feed_all(
-        "ALL", periodOfTime, "REACH_COUNT", 100, 10)
+    login_user(cl)
+
+    insights_media_feed_all = cl.insights_media_feed_all(
+        "ALL", periodOfTime, "IMPRESSION_COUNT", 100, 10)
     print(f"Found: {len(insights_media_feed_all)} media!")
 
     for i, post in enumerate(insights_media_feed_all):
+        print(datetime.now().strftime("%H:%M:%S"))
         postId = post["node"]["instagram_media_id"]
         print(f"Edit post ID: {postId}")
-        postInfo = client.media_info(postId).dict()
+        postInfo = cl.media_info(postId).dict()
         postCaption = postInfo["caption_text"]
         postLocation = postInfo["location"]["pk"]
         print(postCaption)
@@ -103,39 +151,36 @@ def replace_caption_again(periodOfTime):
         for elem in hashtag_list:
             clean_spaces += elem + ' '
         print(clean_spaces)
-        location_info = client.location_info(postLocation)
-        client.media_edit(postId, clean_hashtag, "", [], location_info)
+        location_info = cl.location_info(postLocation)
+        cl.media_edit(postId, clean_hashtag, "", [], location_info)
         print(Fore.RED + f"Clear post ID: {postId} finished!")
-        time.sleep(15)
         print(Style.RESET_ALL)
         print(f"Location: {location_info}")
-        client.media_edit(postId, clean_spaces, "", [], location_info)
+        cl.media_edit(postId, clean_spaces, "", [], location_info)
         print(Fore.GREEN + f"The post ID: {postId} has been edited again")
         print(Style.RESET_ALL)
-
-    client.logout()
 
 
 def clearDmComments():
     with open("creds.txt", "r") as f:
         username, password = f.read().splitlines()
-    client = Client()
-    client.load_settings('dump.json')
-    client.login(username, password)
-    client.get_timeline_feed()
+    cl = Client()
+    cl.load_settings('session.json')
+    cl.login(username, password)
+    cl.get_timeline_feed()
     print(Fore.GREEN + f"get_settings!")
     print(Style.RESET_ALL)
-    print(client.get_settings())
-    print(f"user_info({client.user_id})!")
+    print(cl.get_settings())
+    print(f"user_info({cl.user_id})!")
 
-    insights_media_feed_all = client.insights_media_feed_all(
+    insights_media_feed_all = cl.insights_media_feed_all(
         "IMAGE", "TWO_YEARS", "REACH_COUNT")
     print(f"Found: {len(insights_media_feed_all)} media!")
 
     for i, post in enumerate(insights_media_feed_all):
         postId = post["node"]["instagram_media_id"]
         print(f"Clear comment for post ID: {postId}")
-        comments = client.media_comments(postId)
+        comments = cl.media_comments(postId)
         commentsToDelete = []
         for i, comment in enumerate(comments):
             comment = comment.dict()
@@ -144,29 +189,22 @@ def clearDmComments():
                 commentsToDelete.append(comment["pk"])
         print(commentsToDelete)
         if commentsToDelete:
-            client.comment_bulk_delete(postId, commentsToDelete)
+            cl.comment_bulk_delete(postId, commentsToDelete)
 
-    client.logout()
+    cl.logout()
 
 
 def clearFollowing():
-    with open("creds.txt", "r") as f:
-        username, password = f.read().splitlines()
-    client = Client()
-    client.load_settings('dump.json')
-    client.login(username, password)
-    client.get_timeline_feed()
-    print(Fore.GREEN + f"get_settings!")
-    print(Style.RESET_ALL)
-    print(client.get_settings())
-    print(f"user_info({client.user_id})!")
+    cl = Client()
 
-    followers = client.user_followers_v1(client.user_id)
+    login_user(cl)
+
+    followers = cl.user_followers_v1(cl.user_id)
     followers_arr = []
     for i, user in enumerate(followers):
         followers_arr.append(user.pk)
 
-    following = client.user_following_v1(client.user_id)
+    following = cl.user_following_v1(cl.user_id)
     following_arr = []
     for i, user in enumerate(following):
         following_arr.append(user.pk)
@@ -186,19 +224,16 @@ def clearFollowing():
         print(datetime.now().strftime("%H:%M:%S"))
         try:
             print(user)
-            user_info = client.user_info(user)
-            client.user_unfollow(user)
+            user_info = cl.user_info(user)
+            cl.user_unfollow(user)
             print(f"Succes unfollow user: {user_info.username}")
         except:
             print("Except")
-            client.load_settings('dump.json')
-            client.login(username, password)
-            client.get_timeline_feed()
+            login_user(cl)
             print(user)
-            user_info = client.user_info(user)
-            client.user_unfollow(user)
+            user_info = cl.user_info(user)
+            cl.user_unfollow(user)
             print(f"Succes unfollow user: {user_info.username}")
-    client.logout()
 
 
 def main():

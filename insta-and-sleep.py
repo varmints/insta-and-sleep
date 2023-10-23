@@ -79,10 +79,13 @@ def login_user(cl):
         raise Exception("Couldn't login user with either password or session")
 
 
-def like_by_hashtag(hashtag):
+def like_by_hashtag():
     cl = Client()
 
     login_user(cl)
+
+    hashtags = [
+        "nature", "naturephotography", "spicollective", "photography", "photographyday", "timeless_streets", "today_street",  "streetphotography", "flor", "spi_geometry", "lensculture", "fujifilm", "landscape", "urban"]
 
     while True:
 
@@ -94,6 +97,7 @@ def like_by_hashtag(hashtag):
                     "I really like this one!", "I like the mood 🖖", "Nice!"]
 
         try:
+            hashtag = random.choice(hashtags)
             medias = cl.hashtag_medias_recent_v1(hashtag, 6)
         except:
             print(datetime.now().strftime("%H:%M:%S"))
@@ -269,20 +273,6 @@ def main():
         clear_screen=False,
     )
 
-    like_by_hashtag_menu_title = "  Choose #hashtag.\n  Press Q or Esc to back to main menu. \n"
-    like_by_hashtag_menu_items = [
-        "spicollective", "streetphotography", "flor", "spi_geometry", "lensculture", "fujifilm", "Back to Main Menu"]
-    like_by_hashtag_menu_back = False
-    like_by_hashtag_menu = TerminalMenu(
-        like_by_hashtag_menu_items,
-        title=like_by_hashtag_menu_title,
-        menu_cursor=main_menu_cursor,
-        menu_cursor_style=main_menu_cursor_style,
-        menu_highlight_style=main_menu_style,
-        cycle_cursor=True,
-        clear_screen=False,
-    )
-
     while not main_menu_exit:
         main_sel = main_menu.show()
 
@@ -309,42 +299,7 @@ def main():
                     print("Back Selected")
             replace_caption_menu_back = False
         elif main_sel == 1:
-            while not like_by_hashtag_menu_back:
-                like_by_hashtag_sel = like_by_hashtag_menu.show()
-                if like_by_hashtag_sel == 0:
-                    print(
-                        f"You have selected {like_by_hashtag_menu_items[like_by_hashtag_sel]}!")
-                    like_by_hashtag(
-                        like_by_hashtag_menu_items[like_by_hashtag_sel])
-                elif like_by_hashtag_sel == 1:
-                    print(
-                        f"You have selected {like_by_hashtag_menu_items[like_by_hashtag_sel]}!")
-                    like_by_hashtag(
-                        like_by_hashtag_menu_items[like_by_hashtag_sel])
-                elif like_by_hashtag_sel == 2:
-                    print(
-                        f"You have selected {like_by_hashtag_menu_items[like_by_hashtag_sel]}!")
-                    like_by_hashtag(
-                        like_by_hashtag_menu_items[like_by_hashtag_sel])
-                elif like_by_hashtag_sel == 3:
-                    print(
-                        f"You have selected {like_by_hashtag_menu_items[like_by_hashtag_sel]}!")
-                    like_by_hashtag(
-                        like_by_hashtag_menu_items[like_by_hashtag_sel])
-                elif like_by_hashtag_sel == 4:
-                    print(
-                        f"You have selected {like_by_hashtag_menu_items[like_by_hashtag_sel]}!")
-                    like_by_hashtag(
-                        like_by_hashtag_menu_items[like_by_hashtag_sel])
-                elif like_by_hashtag_sel == 5:
-                    print(
-                        f"You have selected {like_by_hashtag_menu_items[like_by_hashtag_sel]}!")
-                    like_by_hashtag(
-                        like_by_hashtag_menu_items[like_by_hashtag_sel])
-                elif like_by_hashtag_sel == 6 or like_by_hashtag_sel == None:
-                    like_by_hashtag_menu_back = True
-                    print("Back Selected")
-            like_by_hashtag_menu_back = False
+            like_by_hashtag()
         elif main_sel == 2:
             createDevice()
         elif main_sel == 3:

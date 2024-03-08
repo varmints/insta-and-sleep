@@ -9,6 +9,7 @@ from colorama import Fore, Style
 from simple_term_menu import TerminalMenu
 from datetime import datetime
 import logging
+import numpy as np
 from instagrapi import Client
 from instagrapi.exceptions import LoginRequired
 
@@ -35,7 +36,7 @@ def login_user(cl):
 
     with open("creds.txt", "r") as f:
         USERNAME, PASSWORD = f.read().splitlines()
-    cl.delay_range = [5, 30]
+    cl.delay_range = [5, 10]
     session = cl.load_settings("session.json")
 
     login_via_session = False
@@ -84,8 +85,8 @@ def like_by_hashtag():
 
     login_user(cl)
 
-    hashtags = [
-        "nature", "naturephotography", "spicollective", "photography", "photographyday", "timeless_streets", "today_street",  "streetphotography", "flor", "spi_geometry", "lensculture", "fujifilm", "landscape", "urban"]
+    hashtags = ["spicollective", "photography", "photographyday", "timeless_streets", "today_street",  "streetphotography",
+                "spi_geometry", "lensculture", "fujifilm", "architecture_minimal", "minimal_streetphoto", "architecturelover"]
 
     while True:
 
@@ -98,7 +99,7 @@ def like_by_hashtag():
 
         try:
             hashtag = random.choice(hashtags)
-            medias = cl.hashtag_medias_recent_v1(hashtag, 6)
+            medias = cl.hashtag_medias_recent(hashtag, 10)
         except:
             print(datetime.now().strftime("%H:%M:%S"))
             print("Except 1")
@@ -108,8 +109,8 @@ def like_by_hashtag():
         for i, media in enumerate(medias):
             try:
                 print(datetime.now().strftime("%H:%M:%S"))
-                cl.media_like(media.id)
-                print(f"Linked post number {i+1} of hashtag {hashtag}")
+                # cl.media_like(media.id)
+                # print(f"Linked post number {i+1} of hashtag {hashtag}")
                 if i % 2 == 0:
                     cl.user_follow(media.user.pk)
                     print(f"Followed user {media.user.username}")
@@ -203,28 +204,61 @@ def clearFollowing():
 
     login_user(cl)
 
-    followers = cl.user_followers_v1(cl.user_id)
-    followers_arr = []
-    for i, user in enumerate(followers):
-        followers_arr.append(user.pk)
+    try:
+        print(f"befor user_followers")
+        followers = cl.user_followers(cl.user_id, 600)
+        followers_arr = []
+        for i, user in enumerate(followers):
+            followers_arr.append(user.pk)
+        print(f"after user_followers")
+    except:
+        login_user(cl)
+        print(f"befor user_followers 2")
+        followers = cl.user_followers(cl.user_id, 600)
+        followers_arr = []
+        for i, user in enumerate(followers):
+            followers_arr.append(user)
+        print(f"after user_followers 2")
 
-    following = cl.user_following_v1(cl.user_id)
-    following_arr = []
-    for i, user in enumerate(following):
-        following_arr.append(user.pk)
+    print(f"user_followers")
+    print(followers_arr)
+    print(len(followers_arr))
+
+    try:
+        print(f"befor user_following")
+        following = cl.user_following(cl.user_id, 600)
+        following_arr = []
+        for i, user in enumerate(following):
+            following_arr.append(user)
+        print(f"after user_following")
+    except:
+        login_user(cl)
+        print(f"befor user_following 2")
+        following = cl.user_following(cl.user_id, 600)
+        following_arr = []
+        for i, user in enumerate(following):
+            following_arr.append(user)
+        print(f"after user_following 2")
+
+    print(f"user_following")
+    print(following_arr)
+    print(len(following_arr))
+
+    time.sleep(60)
 
     users_to_delete = []
 
     for i, user in enumerate(following_arr):
-        print(i, user)
         if user not in followers_arr:
             users_to_delete.append(user)
 
     print(datetime.now().strftime("%H:%M:%S"))
     print(f"Users to delete:")
     print(users_to_delete)
+    print(len(users_to_delete))
 
     for user in users_to_delete:
+        time.sleep(120)
         print(datetime.now().strftime("%H:%M:%S"))
         try:
             print(user)

@@ -5,6 +5,7 @@ import time
 import json
 import os
 import re
+from pprint import pprint
 from colorama import Fore, Style
 from simple_term_menu import TerminalMenu
 from datetime import datetime
@@ -12,20 +13,34 @@ import logging
 import numpy as np
 from instagrapi import Client
 from instagrapi.exceptions import LoginRequired
+from datetime import datetime, timedelta, timezone
 
 # json.sessions(json.load(resp), indent=2)
 logger = logging.getLogger()
 
+# By default returns True 50% of the time.
+
+
+def probably(chance=.5):
+    return random.random() < chance
+
+
+def current_time():
+    now = datetime.now()
+    return print(now)
+
 
 def createDevice():
     print(f"You will be logged in!")
+    with open("creds.txt", "r") as f:
+        USERNAME, PASSWORD = f.read().splitlines()
     cl = Client()
     cl.set_locale('pl_PL')
     cl.set_country_code(48)  # +48
     # Los Angeles UTC (GMT) -7 hours == -25200 seconds
     cl.set_timezone_offset(2 * 60 * 60)
-    print(cl.get_settings())
-    cl.session_settings("session.json")
+    cl.login(USERNAME, PASSWORD)
+    cl.dump_settings("session.json")
 
 
 def login_user(cl):
@@ -36,7 +51,7 @@ def login_user(cl):
 
     with open("creds.txt", "r") as f:
         USERNAME, PASSWORD = f.read().splitlines()
-    cl.delay_range = [5, 10]
+    cl.delay_range = [5, 15]
     session = cl.load_settings("session.json")
 
     login_via_session = False
@@ -85,38 +100,35 @@ def like_by_hashtag():
 
     login_user(cl)
 
-    hashtags = ["spicollective", "photography", "photographyday", "timeless_streets", "today_street",  "streetphotography",
+    hashtags = ["spicollective", "timeless_streets", "today_street",  "streetphotography",
                 "spi_geometry", "lensculture", "fujifilm", "architecture_minimal", "minimal_streetphoto", "architecturelover"]
 
     while True:
-
-        print(f"user_info({cl.user_id})!")
-        print(cl.user_info(cl.user_id))
-
         comments = ["Awesome", "Wonderful 💯", "This is such a moood !!!",
                     "👍📷❤️", "Wow that looks so amazing 😍😍😍", "Stunning shot🔥",
                     "I really like this one!", "I like the mood 🖖", "Nice!"]
 
         try:
             hashtag = random.choice(hashtags)
-            medias = cl.hashtag_medias_recent(hashtag, 10)
+            medias = cl.hashtag_medias_recent(hashtag, 160)
         except:
             print(datetime.now().strftime("%H:%M:%S"))
             print("Except 1")
             time.sleep(3600)
             continue
 
-        for i, media in enumerate(medias):
+        for i, media in enumerate(medias[100:]):
             try:
                 print(datetime.now().strftime("%H:%M:%S"))
                 # cl.media_like(media.id)
                 # print(f"Linked post number {i+1} of hashtag {hashtag}")
-                if i % 2 == 0:
+                if i % 10 == 0:
                     cl.user_follow(media.user.pk)
                     print(f"Followed user {media.user.username}")
                     comment = random.choice(comments)
                     cl.media_comment(media.id, comment)
                     print(f"Commented {comment} under post number {i+1}")
+                    time.sleep(3600)
             except:
                 print(datetime.now().strftime("%H:%M:%S"))
                 print("Except 2")
@@ -255,16 +267,18 @@ def clearFollowing():
     print(datetime.now().strftime("%H:%M:%S"))
     print(f"Users to delete:")
     print(users_to_delete)
-    print(len(users_to_delete))
+    len_users_to_delete = len(users_to_delete)
+    print(f"{len_users_to_delete} accounts left to delete")
 
     for user in users_to_delete:
-        time.sleep(120)
         print(datetime.now().strftime("%H:%M:%S"))
         try:
             print(user)
             user_info = cl.user_info(user)
             cl.user_unfollow(user)
             print(f"Succes unfollow user: {user_info.username}")
+            len_users_to_delete -= 1
+            print(f"{len_users_to_delete} accounts left to delete")
         except:
             print("Except")
             login_user(cl)
@@ -274,10 +288,135 @@ def clearFollowing():
             print(f"Succes unfollow user: {user_info.username}")
 
 
+def getMoreFollowers():
+    cl = Client()
+
+    login_user(cl)
+
+    i = 1
+    while i < 12:
+        try:
+            medias = cl.user_medias(cl.user_id, 1)
+            pprint(medias)
+            break
+        except:
+            print(f"Except {i}")
+            i += 1
+            time.sleep(1800 * i)
+            continue
+
+    users_to_follow = []
+    print("Media Likers:")
+    media_likers = cl.media_likers(medias[0].id)
+    np.random.shuffle(media_likers)
+    pprint(media_likers)
+    for user in media_likers:
+        print("User:")
+        pprint(user)
+        if user.username != cl.username:
+            following = cl.user_following(user.pk, 10)
+            following_list_from_dict = [i for i in following.values()]
+            following_list_from_dict[:1]
+            np.random.shuffle(following_list_from_dict)
+            following_list_from_dict[:250]
+            print("User Following list:")
+            pprint(following_list_from_dict)
+            for user_fol in following_list_from_dict:
+                processed_accounts = 0
+                omitted_accounts = 0
+                followed_accounts = 0
+                print(
+                    f"Processed accounts: {processed_accounts}; Omitted accounts: {omitted_accounts}; Followed accounts: {followed_accounts}")
+                print(f"{user_fol.username} Medias:")
+                try:
+                    current_time()
+                    medias = cl.user_medias(user_fol.pk, 12)
+                except:
+                    current_time()
+                    print("Error when fetch posts. Private account?")
+                print(f"{len(medias)} medias")
+                gifted_likes = 0
+                for media in medias:
+                    post_created_at = media.taken_at
+                    n_days_ago = datetime.now() - timedelta(days=14)
+
+                    if (n_days_ago.timestamp() < post_created_at.timestamp()) and (gifted_likes < 6):
+                        gifted_likes += 1
+                        print(
+                            f"like post: https://www.instagram.com/p/{media.code}")
+                        cl.media_like(media.id)
+                        if gifted_likes == 4:
+                            try:
+                                current_time()
+                                cl.media_comment(media.id, "love it 🔥")
+                            except:
+                                current_time()
+                                print(f"I can't comment this post!")
+                    else:
+                        omitted_accounts += 1
+                if gifted_likes > 3:
+                    users_to_follow.append(
+                        'https://www.instagram.com/' + user_fol.username)
+                    pprint(users_to_follow)
+                    if probably(0.4):
+                        # Do something 40% of the time
+                        try:
+                            current_time()
+                            cl.user_follow(user_fol.pk)
+                            print(f"I follow {user_fol.username}!")
+                            followed_accounts += 1
+                            time_to_wait = random.randint(900, 1800)
+                            time.sleep(time_to_wait)
+                        except:
+                            current_time()
+                            print(f"I can't follow {user_fol.username}!")
+                    else:
+                        # Do something else 60% of the time
+                        print(f"You hit a 60% chance of not giving a follow.")
+                    time.sleep(600)
+                processed_accounts += 1
+                time.sleep(60)
+        time.sleep(60)
+
+
+def getFollowingByUsername():
+    print("Type username:")
+    username = input()
+
+    cl = Client()
+    login_user(cl)
+
+    j = 1
+    while j < 12:
+        try:
+            user_id = cl.user_id_from_username(username)
+            print(f"{username} ID: {user_id}")
+            break
+        except:
+            print(f"Except a {j}")
+            j += 1
+            time.sleep(60*j)
+            continue
+
+    i = 1
+    while i < 12:
+        try:
+            info_about_user = cl.user_following(username, 10)
+            pprint(info_about_user)
+            for user in info_about_user:
+                print(info_about_user[user].username)
+            break
+        except:
+            print(f"Except b {i}")
+            i += 1
+            time.sleep(60*i)
+            continue
+
+
 def main():
     main_menu_title = "  Insta & Sleep.\n  Press Q or Esc to quit. \n"
     main_menu_items = ["Replace caption",
-                       "Like 20 most recent posts by #hashtag", "Create device", "Clear DM comments", "Clear useless Following", "Quit"]
+                       "Like 20 most recent posts by #hashtag", "Create device", "Clear DM comments", "Clear useless Following", "Get more followers", "Get Following by username", "Quit"]
     main_menu_cursor = "# "
     main_menu_cursor_style = ("fg_red", "bold")
     main_menu_style = ("bg_red", "fg_yellow")
@@ -328,7 +467,13 @@ def main():
                 elif replace_caption_sel == 4:
                     replace_caption_again(
                         replace_caption_menu_items[replace_caption_sel])
-                elif replace_caption_sel == 5 or replace_caption_sel == None:
+                elif replace_caption_sel == 5:
+                    replace_caption_again(
+                        replace_caption_menu_items[replace_caption_sel])
+                elif replace_caption_sel == 6:
+                    replace_caption_again(
+                        replace_caption_menu_items[replace_caption_sel])
+                elif replace_caption_sel == 7 or replace_caption_sel == None:
                     replace_caption_menu_back = True
                     print("Back Selected")
             replace_caption_menu_back = False
@@ -340,7 +485,11 @@ def main():
             clearDmComments()
         elif main_sel == 4:
             clearFollowing()
-        elif main_sel == 5 or main_sel == None:
+        elif main_sel == 5:
+            getMoreFollowers()
+        elif main_sel == 6:
+            getFollowingByUsername()
+        elif main_sel == 7 or main_sel == None:
             main_menu_exit = True
             print("Quit Selected")
 

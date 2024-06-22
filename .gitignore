@@ -1,2 +1,3 @@
 creds.txt
-dump.json
+session.json
+geckodriver.log

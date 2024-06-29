@@ -310,6 +310,9 @@ def getMoreFollowers():
     media_likers = cl.media_likers(medias[0].id)
     np.random.shuffle(media_likers)
     pprint(media_likers)
+    processed_accounts = 0
+    omitted_accounts = 0
+    followed_accounts = 0
     for user in media_likers:
         print("User:")
         pprint(user)
@@ -322,9 +325,6 @@ def getMoreFollowers():
             print("User Following list:")
             pprint(following_list_from_dict)
             for user_fol in following_list_from_dict:
-                processed_accounts = 0
-                omitted_accounts = 0
-                followed_accounts = 0
                 print(
                     f"Processed accounts: {processed_accounts}; Omitted accounts: {omitted_accounts}; Followed accounts: {followed_accounts}")
                 print(f"{user_fol.username} Medias:")
@@ -349,6 +349,7 @@ def getMoreFollowers():
                             try:
                                 current_time()
                                 cl.media_comment(media.id, "love it 🔥")
+                                print(f"I comment post {media.code}!")
                             except:
                                 current_time()
                                 print(f"I can't comment this post!")
@@ -358,8 +359,8 @@ def getMoreFollowers():
                     users_to_follow.append(
                         'https://www.instagram.com/' + user_fol.username)
                     pprint(users_to_follow)
-                    if probably(0.4):
-                        # Do something 40% of the time
+                    if probably(0.1):
+                        # Do something X% of the time
                         try:
                             current_time()
                             cl.user_follow(user_fol.pk)
@@ -371,8 +372,8 @@ def getMoreFollowers():
                             current_time()
                             print(f"I can't follow {user_fol.username}!")
                     else:
-                        # Do something else 60% of the time
-                        print(f"You hit a 60% chance of not giving a follow.")
+                        # Do something else 100-X% of the time
+                        print(f"You hit a 90% chance of not giving a follow.")
                     time.sleep(600)
                 processed_accounts += 1
                 time.sleep(60)

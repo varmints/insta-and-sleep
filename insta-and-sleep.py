@@ -309,10 +309,10 @@ def getMoreFollowers():
     print("Media Likers:")
     media_likers = cl.media_likers(medias[0].id)
     np.random.shuffle(media_likers)
-    pprint(media_likers)
     processed_accounts = 0
     omitted_accounts = 0
     followed_accounts = 0
+    accounts_to_follow = 0
     for user in media_likers:
         print("User:")
         pprint(user)
@@ -323,10 +323,9 @@ def getMoreFollowers():
             np.random.shuffle(following_list_from_dict)
             following_list_from_dict[:250]
             print("User Following list:")
-            pprint(following_list_from_dict)
             for user_fol in following_list_from_dict:
                 print(
-                    f"Processed accounts: {processed_accounts}; Omitted accounts: {omitted_accounts}; Followed accounts: {followed_accounts}")
+                    f"Processed accounts: {processed_accounts}; Omitted accounts: {omitted_accounts}; Followed accounts: {followed_accounts}; Accounts to follow: {accounts_to_follow}")
                 print(f"{user_fol.username} Medias:")
                 try:
                     current_time()
@@ -353,11 +352,7 @@ def getMoreFollowers():
                             except:
                                 current_time()
                                 print(f"I can't comment this post!")
-                    else:
-                        omitted_accounts += 1
                 if gifted_likes > 3:
-                    users_to_follow.append(
-                        'https://www.instagram.com/' + user_fol.username)
                     pprint(users_to_follow)
                     if probably(0.1):
                         # Do something X% of the time
@@ -370,11 +365,16 @@ def getMoreFollowers():
                             time.sleep(time_to_wait)
                         except:
                             current_time()
+                            accounts_to_follow += 1
+                            users_to_follow.append(
+                                'https://www.instagram.com/' + user_fol.username)
                             print(f"I can't follow {user_fol.username}!")
                     else:
                         # Do something else 100-X% of the time
                         print(f"You hit a 90% chance of not giving a follow.")
                     time.sleep(600)
+                else:
+                    omitted_accounts += 1
                 processed_accounts += 1
                 time.sleep(60)
         time.sleep(60)

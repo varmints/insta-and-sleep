@@ -333,13 +333,14 @@ def getMoreFollowers():
                 except:
                     current_time()
                     print("Error when fetch posts. Private account?")
+                    omitted_accounts += 1
                 print(f"{len(medias)} medias")
                 gifted_likes = 0
                 for media in medias:
                     post_created_at = media.taken_at
                     n_days_ago = datetime.now() - timedelta(days=14)
 
-                    if (n_days_ago.timestamp() < post_created_at.timestamp()) and (gifted_likes < 6):
+                    if (n_days_ago.timestamp() < post_created_at.timestamp()) and (gifted_likes <= 5):
                         gifted_likes += 1
                         print(
                             f"like post: https://www.instagram.com/p/{media.code}")
@@ -352,7 +353,7 @@ def getMoreFollowers():
                             except:
                                 current_time()
                                 print(f"I can't comment this post!")
-                if gifted_likes > 3:
+                if gifted_likes >= 4:
                     pprint(users_to_follow)
                     if probably(0.1):
                         # Do something X% of the time

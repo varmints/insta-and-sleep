@@ -306,7 +306,7 @@ def getMoreFollowers():
             continue
 
     users_to_follow = []
-    print("Media Likers:")
+    print("Media liker list:")
     media_likers = cl.media_likers(medias[0].id)
     np.random.shuffle(media_likers)
     processed_accounts = 0
@@ -314,8 +314,7 @@ def getMoreFollowers():
     followed_accounts = 0
     accounts_to_follow = 0
     for user in media_likers:
-        print("User:")
-        pprint(user)
+        print(f"Media liker username: {user.username}")
         if user.username != cl.username:
             following = cl.user_following(user.pk, 10)
             following_list_from_dict = [i for i in following.values()]
@@ -326,10 +325,10 @@ def getMoreFollowers():
             for user_fol in following_list_from_dict:
                 print(
                     f"Processed accounts: {processed_accounts}; Omitted accounts: {omitted_accounts}; Followed accounts: {followed_accounts}; Accounts to follow: {accounts_to_follow}")
-                print(f"{user_fol.username} Medias:")
+                print(f"{user_fol.username} medias:")
                 try:
                     current_time()
-                    medias = cl.user_medias(user_fol.pk, 12)
+                    medias = cl.user_medias(user_fol.pk, 4)
                 except:
                     current_time()
                     print("Error when fetch posts. Private account?")
@@ -354,15 +353,18 @@ def getMoreFollowers():
                                 current_time()
                                 print(f"I can't comment this post!")
                 if gifted_likes >= 4:
-                    pprint(users_to_follow)
-                    if probably(0.1):
+                    
+                    if probably(0.99):
                         # Do something X% of the time
                         try:
                             current_time()
-                            cl.user_follow(user_fol.pk)
-                            print(f"I follow {user_fol.username}!")
-                            followed_accounts += 1
-                            time_to_wait = random.randint(900, 1800)
+                            # cl.user_follow(user_fol.pk)
+                            # print(f"I follow {user_fol.username}!")
+                            # followed_accounts += 1
+                            accounts_to_follow += 1
+                            users_to_follow.append(
+                                'https://www.instagram.com/' + user_fol.username)
+                            time_to_wait = random.randint(900, 1200)
                             time.sleep(time_to_wait)
                         except:
                             current_time()
@@ -372,8 +374,11 @@ def getMoreFollowers():
                             print(f"I can't follow {user_fol.username}!")
                     else:
                         # Do something else 100-X% of the time
-                        print(f"You hit a 90% chance of not giving a follow.")
-                    time.sleep(600)
+                        print(f"You hit a 50% chance of not giving a follow.")
+                        users_to_follow.append(
+                                'https://www.instagram.com/' + user_fol.username)
+                    pprint(users_to_follow)
+                    time.sleep(300)
                 else:
                     omitted_accounts += 1
                 processed_accounts += 1

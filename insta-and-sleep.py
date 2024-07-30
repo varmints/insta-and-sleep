@@ -306,7 +306,6 @@ def getMoreFollowers():
             continue
 
     users_to_follow = []
-    print("Media liker list:")
     media_likers = cl.media_likers(medias[0].id)
     np.random.shuffle(media_likers)
     processed_accounts = 0

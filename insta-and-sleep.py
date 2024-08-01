@@ -290,28 +290,17 @@ def clearFollowing():
 
 def getMoreFollowers():
     cl = Client()
-
     login_user(cl)
 
-    i = 1
-    while i < 12:
-        try:
-            medias = cl.user_medias(cl.user_id, 1)
-            pprint(medias)
-            break
-        except:
-            print(f"Except {i}")
-            i += 1
-            time.sleep(1800 * i)
-            continue
-
     users_to_follow = []
-    media_likers = cl.media_likers(medias[0].id)
-    np.random.shuffle(media_likers)
     processed_accounts = 0
     omitted_accounts = 0
     followed_accounts = 0
     accounts_to_follow = 0
+
+    media_likers = cl.media_likers(medias[0].id)
+    np.random.shuffle(media_likers)
+
     for user in media_likers:
         print(f"Media liker username: {user.username}")
         if user.username != cl.username:
@@ -320,11 +309,9 @@ def getMoreFollowers():
             following_list_from_dict[:1]
             np.random.shuffle(following_list_from_dict)
             following_list_from_dict[:250]
-            print("User Following list:")
             for user_fol in following_list_from_dict:
                 print(
                     f"Processed accounts: {processed_accounts}; Omitted accounts: {omitted_accounts}; Followed accounts: {followed_accounts}; Accounts to follow: {accounts_to_follow}")
-                print(f"{user_fol.username} medias:")
                 try:
                     current_time()
                     medias = cl.user_medias(user_fol.pk, 4)
@@ -332,7 +319,6 @@ def getMoreFollowers():
                     current_time()
                     print("Error when fetch posts. Private account?")
                     omitted_accounts += 1
-                print(f"{len(medias)} medias")
                 gifted_likes = 0
                 for media in medias:
                     post_created_at = media.taken_at
@@ -340,21 +326,19 @@ def getMoreFollowers():
 
                     if (n_days_ago.timestamp() < post_created_at.timestamp()) and (gifted_likes <= 5):
                         gifted_likes += 1
-                        print(
-                            f"like post: https://www.instagram.com/p/{media.code}")
+                        # print(
+                        #     f"like post: https://www.instagram.com/p/{media.code}")
                         cl.media_like(media.id)
                         if gifted_likes == 4:
                             try:
                                 current_time()
                                 cl.media_comment(media.id, "love it 🔥")
-                                print(f"I comment post {media.code}!")
                             except:
                                 current_time()
-                                print(f"I can't comment this post!")
+                                print(f"I can't comment post: https://www.instagram.com/p/{media.code}!")
                 if gifted_likes >= 4:
-                    
+                    # Do something X% of the time
                     if probably(0.99):
-                        # Do something X% of the time
                         try:
                             current_time()
                             # cl.user_follow(user_fol.pk)
@@ -363,7 +347,7 @@ def getMoreFollowers():
                             accounts_to_follow += 1
                             users_to_follow.append(
                                 'https://www.instagram.com/' + user_fol.username)
-                            time_to_wait = random.randint(900, 1200)
+                            time_to_wait = random.randint(600, 900)
                             time.sleep(time_to_wait)
                         except:
                             current_time()
@@ -377,7 +361,7 @@ def getMoreFollowers():
                         users_to_follow.append(
                                 'https://www.instagram.com/' + user_fol.username)
                     pprint(users_to_follow)
-                    time.sleep(300)
+                    time.sleep(240)
                 else:
                     omitted_accounts += 1
                 processed_accounts += 1

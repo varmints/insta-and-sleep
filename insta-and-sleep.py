@@ -298,6 +298,7 @@ def getMoreFollowers():
     followed_accounts = 0
     accounts_to_follow = 0
 
+    medias = cl.user_medias(cl.user_id, 1)
     media_likers = cl.media_likers(medias[0].id)
     np.random.shuffle(media_likers)
 
@@ -308,60 +309,51 @@ def getMoreFollowers():
             following_list_from_dict = [i for i in following.values()]
             following_list_from_dict[:1]
             np.random.shuffle(following_list_from_dict)
-            following_list_from_dict[:250]
+            following_list_from_dict[:100]
             for user_fol in following_list_from_dict:
+                current_time()
                 print(
                     f"Processed accounts: {processed_accounts}; Omitted accounts: {omitted_accounts}; Followed accounts: {followed_accounts}; Accounts to follow: {accounts_to_follow}")
                 try:
-                    current_time()
-                    medias = cl.user_medias(user_fol.pk, 4)
+                    medias = cl.user_medias(user_fol.pk, 6)
                 except:
                     current_time()
                     print("Error when fetch posts. Private account?")
                     omitted_accounts += 1
+                rate_counter = 0
                 gifted_likes = 0
+                permission_to_give_likes = False
                 for media in medias:
                     post_created_at = media.taken_at
                     n_days_ago = datetime.now() - timedelta(days=14)
-
                     if (n_days_ago.timestamp() < post_created_at.timestamp()) and (gifted_likes <= 5):
+                        rate_counter += 1
+                if rate_counter >= 4:
+                    permission_to_give_likes = True
+                if permission_to_give_likes:
+                    for media in medias:
+                        # cl.media_like(media.id)
                         gifted_likes += 1
-                        # print(
-                        #     f"like post: https://www.instagram.com/p/{media.code}")
-                        cl.media_like(media.id)
-                        if gifted_likes == 4:
+                    if gifted_likes >= 4:
+                        # Do something X% of the time
+                        if probably(0.99):
                             try:
-                                current_time()
-                                cl.media_comment(media.id, "love it 🔥")
+                                accounts_to_follow += 1
+                                users_to_follow.append(
+                                    'https://www.instagram.com/' + user_fol.username)
+                                time_to_wait = random.randint(300, 600)
+                                time.sleep(time_to_wait)
                             except:
                                 current_time()
-                                print(f"I can't comment post: https://www.instagram.com/p/{media.code}!")
-                if gifted_likes >= 4:
-                    # Do something X% of the time
-                    if probably(0.99):
-                        try:
-                            current_time()
-                            # cl.user_follow(user_fol.pk)
-                            # print(f"I follow {user_fol.username}!")
-                            # followed_accounts += 1
-                            accounts_to_follow += 1
-                            users_to_follow.append(
-                                'https://www.instagram.com/' + user_fol.username)
-                            time_to_wait = random.randint(600, 900)
-                            time.sleep(time_to_wait)
-                        except:
-                            current_time()
-                            accounts_to_follow += 1
-                            users_to_follow.append(
-                                'https://www.instagram.com/' + user_fol.username)
-                            print(f"I can't follow {user_fol.username}!")
-                    else:
-                        # Do something else 100-X% of the time
-                        print(f"You hit a 50% chance of not giving a follow.")
-                        users_to_follow.append(
-                                'https://www.instagram.com/' + user_fol.username)
+                                accounts_to_follow += 1
+                                users_to_follow.append('https://www.instagram.com/' + user_fol.username)
+                                print(f"I can't follow {user_fol.username}!")
+                        else:
+                            # Do something else 100-X% of the time
+                            print(f"You hit a 50% chance of not giving a follow.")
+                            users_to_follow.append('https://www.instagram.com/' + user_fol.username)
                     pprint(users_to_follow)
-                    time.sleep(240)
+                    time.sleep(120)
                 else:
                     omitted_accounts += 1
                 processed_accounts += 1

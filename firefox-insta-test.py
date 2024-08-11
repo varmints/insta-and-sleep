@@ -1,5 +1,6 @@
 import time
 from selenium import webdriver
+from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
@@ -14,8 +15,8 @@ with open("creds.txt", "r") as f:
 
 options = Options()
 options.set_preference('intl.accept_languages', 'en-US, en')
-
-driver = webdriver.Firefox(options=options)
+firefox_service = FirefoxService(executable_path='./geckodriver')
+driver = webdriver.Firefox(service=firefox_service, options=options)
 
 driver.get("http://instagram.com")
 
@@ -49,12 +50,14 @@ while True:
     with open('tofollow.txt') as f:
         first_line = f.readline().strip('\n')
     if first_line != '':
+        print(first_line)
         driver.get(first_line)
         try:
             medias = WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located(
                 (By.XPATH, "//a[starts-with(@href,'/p/')]")))
 
             posts = [media.get_attribute('href') for media in medias]
+            print(posts)
             for post in posts:
                 driver.get(post)
                 time.sleep(10)
@@ -83,6 +86,7 @@ while True:
     else:
         print('nok')
         continue
+
     with open(r'tofollow.txt', 'r+') as fp:
         # read an store all lines into list
         lines = fp.readlines()
@@ -93,6 +97,7 @@ while True:
         # start writing lines except the first line
         # lines[1:] from line 2 to last line
         fp.writelines(lines[1:])
+        
     if to_skip:
         time.sleep(36)
     else:

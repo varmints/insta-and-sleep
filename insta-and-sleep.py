@@ -288,7 +288,7 @@ def clearFollowing():
             print(f"Succes unfollow user: {user_info.username}")
 
 
-def getMoreFollowers():
+def getMorePotentialFollowers():
     cl = Client()
     login_user(cl)
 
@@ -309,7 +309,7 @@ def getMoreFollowers():
             following_list_from_dict = [i for i in following.values()]
             following_list_from_dict[:1]
             np.random.shuffle(following_list_from_dict)
-            following_list_from_dict[:100]
+            following_list_from_dict[:150]
             for user_fol in following_list_from_dict:
                 current_time()
                 print(
@@ -321,37 +321,34 @@ def getMoreFollowers():
                     print("Error when fetch posts. Private account?")
                     omitted_accounts += 1
                 rate_counter = 0
-                gifted_likes = 0
-                permission_to_give_likes = False
+                permission_to_save = False
                 for media in medias:
                     post_created_at = media.taken_at
                     n_days_ago = datetime.now() - timedelta(days=14)
-                    if (n_days_ago.timestamp() < post_created_at.timestamp()) and (gifted_likes <= 5):
+                    if (n_days_ago.timestamp() < post_created_at.timestamp()) and (rate_counter <= 5):
                         rate_counter += 1
                 if rate_counter >= 4:
-                    permission_to_give_likes = True
-                if permission_to_give_likes:
-                    for media in medias:
-                        # cl.media_like(media.id)
-                        gifted_likes += 1
-                    if gifted_likes >= 4:
-                        # Do something X% of the time
-                        if probably(0.99):
-                            try:
-                                accounts_to_follow += 1
-                                users_to_follow.append(
-                                    'https://www.instagram.com/' + user_fol.username)
-                                time_to_wait = random.randint(300, 600)
-                                time.sleep(time_to_wait)
-                            except:
-                                current_time()
-                                accounts_to_follow += 1
-                                users_to_follow.append('https://www.instagram.com/' + user_fol.username)
-                                print(f"I can't follow {user_fol.username}!")
+                    permission_to_save = True
+                if permission_to_save:
+                    # Do something X% of the time
+                    if probably(0.99):
+                        users_to_follow.append(
+                            'https://www.instagram.com/' + user_fol.username)
+                        time_to_wait = random.randint(300, 600)
+                        time.sleep(time_to_wait)
+                    else:
+                        # Do something else 100-X% of the time
+                        users_to_follow.append(
+                            'https://www.instagram.com/' + user_fol.username)
+                    accounts_to_follow += 1
+                    with open('tofollow.txt', 'r') as tofollow:
+                        link_to_save = 'https://www.instagram.com/' + user_fol.username + '/\n'
+                        if link_to_save in tofollow.read():
+                            current_time()
+                            print(f"{link_to_save} is already saved")
                         else:
-                            # Do something else 100-X% of the time
-                            print(f"You hit a 50% chance of not giving a follow.")
-                            users_to_follow.append('https://www.instagram.com/' + user_fol.username)
+                            with open('tofollow.txt', 'a') as tofollow:
+                                tofollow.write(link_to_save)
                     pprint(users_to_follow)
                     time.sleep(120)
                 else:
@@ -398,7 +395,7 @@ def getFollowingByUsername():
 def main():
     main_menu_title = "  Insta & Sleep.\n  Press Q or Esc to quit. \n"
     main_menu_items = ["Replace caption",
-                       "Like 20 most recent posts by #hashtag", "Create device", "Clear DM comments", "Clear useless Following", "Get more followers", "Get Following by username", "Quit"]
+                       "Like 20 most recent posts by #hashtag", "Create device", "Clear DM comments", "Clear useless Following", "Get more potential followers", "Get Following by username", "Quit"]
     main_menu_cursor = "# "
     main_menu_cursor_style = ("fg_red", "bold")
     main_menu_style = ("bg_red", "fg_yellow")
@@ -468,7 +465,7 @@ def main():
         elif main_sel == 4:
             clearFollowing()
         elif main_sel == 5:
-            getMoreFollowers()
+            getMorePotentialFollowers()
         elif main_sel == 6:
             getFollowingByUsername()
         elif main_sel == 7 or main_sel == None:

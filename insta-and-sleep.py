@@ -13,7 +13,7 @@ import logging
 import numpy as np
 from instagrapi import Client
 from instagrapi.exceptions import LoginRequired
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 # json.sessions(json.load(resp), indent=2)
 logger = logging.getLogger()

@@ -9,21 +9,24 @@ from selenium.webdriver.firefox.options import Options
 from datetime import datetime, timedelta
 from pprint import pprint
 
+
 def current_time():
     now = datetime.now()
     return print(now)
+
 
 with open("creds.txt", "r") as f:
     USERNAME, PASSWORD = f.read().splitlines()
 
 options = Options()
 options.set_preference('intl.accept_languages', 'en-US, en')
-firefox_service = FirefoxService(executable_path='./geckodriver')
+firefox_service = FirefoxService(
+    executable_path='./geckodriver', log_output='./geckodriver.log')
 driver = webdriver.Firefox(service=firefox_service, options=options)
 
 driver.get("http://instagram.com")
 
-time.sleep(5)
+time.sleep(15)
 
 try:
     WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
@@ -56,42 +59,51 @@ while True:
         print(first_line)
         driver.get(first_line)
         time.sleep(15)
-        followers = driver.find_element(By.XPATH, "//a[text()[contains(.,'followers')]]/span/span")
-        following = driver.find_element(By.XPATH, "//a[text()[contains(.,'following')]]/span/span")
-        print(followers,following)
 
         try:
-            try:
-                follow_btn = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow']")))    
-            except Exception as e:
-                print(e)
-                to_skip = True
-                pass
-            
-            if not to_skip:
-                medias = WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located(
-                    (By.XPATH, "//a[starts-with(@href,'/p/')]")))
-                posts = [media.get_attribute('href') for media in medias]
-                current_time()
-                print(posts)
-                for post in posts:
-                    driver.get(post)
-                    time.sleep(10)
-                    try:
-                        list_of_like_btn = driver.find_elements(
-                            By.CSS_SELECTOR, "svg[aria-label='Like']")
-                        list_of_like_btn[-1].click()
-                    except Exception as e:
-                        print(e)
-                        pass
-                    time.sleep(15)
-                driver.get(first_line)
-                time.sleep(15)
-                follow_btn.click()
+            followers = driver.find_element(
+                By.XPATH, "//a[text()[contains(.,'followers')]]/span/span").text
+            following = driver.find_element(
+                By.XPATH, "//a[text()[contains(.,'following')]]/span/span").text
+            print(followers, following)
+        except Exception as e:
+            print(e)
+            pass
+
+        try:
+            follow_btn = WebDriverWait(driver, 20).until(
+                EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow']")))
+            medias = WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located(
+                (By.XPATH, "//a[starts-with(@href,'/p/')]")))
         except Exception as e:
             print(e)
             to_skip = True
             pass
+
+        if not to_skip:
+            posts = [media.get_attribute('href') for media in medias]
+            current_time()
+            print(posts)
+            for post in posts:
+                driver.get(post)
+                time.sleep(10)
+                try:
+                    list_of_like_btn = driver.find_elements(
+                        By.CSS_SELECTOR, "svg[aria-label='Like']")
+                    list_of_like_btn[-1].click()
+                except Exception as e:
+                    print(e)
+                    pass
+                time.sleep(15)
+            driver.get(first_line)
+            time.sleep(15)
+            try:
+                follow_btn = WebDriverWait(driver, 20).until(
+                    EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow']")))
+                follow_btn.click()
+            except Exception as e:
+                print(e)
+                pass
     else:
         print('nok')
         continue
@@ -106,8 +118,8 @@ while True:
         # start writing lines except the first line
         # lines[1:] from line 2 to last line
         fp.writelines(lines[1:])
-        
+
     if to_skip:
-        time.sleep(36)
+        time.sleep(180)
     else:
         time.sleep(3000)

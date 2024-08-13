@@ -15,6 +15,22 @@ def current_time():
     return print(now)
 
 
+def convert_to_number(text):
+    if 'M' in text and '.' in text:
+        text = text.replace('.', '').replace('M', '00000')
+    elif 'M' in text and '.' not in text:
+        text = text.replace('M', '000000')
+    elif 'K' in text and '.' in text:
+        text = text.replace('.', '').replace('K', '00')
+    elif 'K' in text and '.' not in text:
+        text = text.replace('K', '000')
+    elif ',' in text:
+        text = text.replace(',', '')
+    else:
+        text
+    return int(text)
+
+
 with open("creds.txt", "r") as f:
     USERNAME, PASSWORD = f.read().splitlines()
 
@@ -66,6 +82,10 @@ while True:
             following = driver.find_element(
                 By.XPATH, "//a[text()[contains(.,'following')]]/span/span").text
             print(followers, following)
+            followers = convert_to_number(followers)
+            following = convert_to_number(following)
+            if followers - following >= 5000 or followers - following <= -1000:
+                to_skip = True
         except Exception as e:
             print(e)
             pass

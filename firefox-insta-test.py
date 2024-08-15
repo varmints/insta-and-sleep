@@ -84,7 +84,7 @@ while True:
             print(followers, following)
             followers = convert_to_number(followers)
             following = convert_to_number(following)
-            if followers - following >= 5000 or followers - following <= -1000:
+            if followers - following >= 5000:
                 to_skip = True
         except Exception as e:
             print(e)
@@ -142,4 +142,4 @@ while True:
     if to_skip:
         time.sleep(180)
     else:
-        time.sleep(3000)
+        time.sleep(1800)

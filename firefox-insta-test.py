@@ -1,4 +1,5 @@
 import time
+import random
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.support.ui import WebDriverWait
@@ -9,11 +10,9 @@ from selenium.webdriver.firefox.options import Options
 from datetime import datetime, timedelta
 from pprint import pprint
 
-
 def current_time():
     now = datetime.now()
     return print(now)
-
 
 def convert_to_number(text):
     if 'M' in text and '.' in text:
@@ -29,7 +28,6 @@ def convert_to_number(text):
     else:
         text
     return int(text)
-
 
 with open("creds.txt", "r") as f:
     USERNAME, PASSWORD = f.read().splitlines()
@@ -74,7 +72,7 @@ while True:
     if first_line != '':
         print(first_line)
         driver.get(first_line)
-        time.sleep(15)
+        time.sleep(random.randint(10, 15))
 
         try:
             followers = driver.find_element(
@@ -101,22 +99,33 @@ while True:
             pass
 
         if not to_skip:
-            posts = [media.get_attribute('href') for media in medias]
+            # posts = [media.get_attribute('href') for media in medias]
             current_time()
-            print(posts)
-            for post in posts:
-                driver.get(post)
-                time.sleep(10)
+            # print(posts)
+            for post in medias:
+                driver.execute_script("arguments[0].scrollIntoView({block:'center'});", post)
+                time.sleep(random.randint(5, 10))
+                parent = post.find_element(By.XPATH, "..")
+                ActionChains(driver).click(parent).perform()
+                time.sleep(random.randint(5, 10))
                 try:
                     list_of_like_btn = driver.find_elements(
                         By.CSS_SELECTOR, "svg[aria-label='Like']")
-                    list_of_like_btn[-1].click()
+                    list_of_like_btn[0].click()
                 except Exception as e:
                     print(e)
                     pass
-                time.sleep(15)
+                time.sleep(random.randint(5, 10))
+                try:
+                    close_btn = driver.find_element(
+                        By.CSS_SELECTOR, "svg[aria-label='Close']")
+                    close_btn.click()
+                except Exception as e:
+                    print(e)
+                    pass
+                time.sleep(random.randint(5, 10))
             driver.get(first_line)
-            time.sleep(15)
+            time.sleep(random.randint(5, 10))
             try:
                 follow_btn = WebDriverWait(driver, 20).until(
                     EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow']")))
@@ -140,6 +149,6 @@ while True:
         fp.writelines(lines[1:])
 
     if to_skip:
-        time.sleep(180)
+        time.sleep(random.randint(120, 240))
     else:
-        time.sleep(1800)
+        time.sleep(random.randint(1800, 2400))

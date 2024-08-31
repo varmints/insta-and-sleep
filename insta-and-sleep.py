@@ -349,7 +349,6 @@ def getMorePotentialFollowers():
                         else:
                             with open('tofollow.txt', 'a') as tofollow:
                                 tofollow.write(link_to_save)
-                    pprint(users_to_follow)
                     time.sleep(120)
                 else:
                     omitted_accounts += 1

@@ -14,6 +14,9 @@ def current_time():
     now = datetime.now()
     return print(now)
 
+def probably(chance=.5):
+    return random.random() < chance
+
 def convert_to_number(text):
     if 'M' in text and '.' in text:
         text = text.replace('.', '').replace('M', '00000')
@@ -130,8 +133,13 @@ while True:
                 follow_btn = WebDriverWait(driver, 20).until(
                     EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow']")))
                 follow_btn.click()
-            except Exception as e:
-                print(e)
+            except:
+                pass
+            try:
+                follow_back_btn = WebDriverWait(driver, 20).until(
+                    EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow Back']")))
+                follow_back_btn.click()
+            except:
                 pass
     else:
         print('nok')
@@ -149,6 +157,9 @@ while True:
         fp.writelines(lines[1:])
 
     if to_skip:
-        time.sleep(random.randint(120, 240))
+        if probably(0.9):
+            time.sleep(random.randint(120, 240))
+        else:
+            time.sleep(random.randint(1200, 2400))
     else:
         time.sleep(random.randint(1800, 2400))

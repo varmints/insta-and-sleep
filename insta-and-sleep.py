@@ -298,8 +298,8 @@ def getMorePotentialFollowers():
     followed_accounts = 0
     accounts_to_follow = 0
 
-    medias = cl.user_medias(cl.user_id, 1)
-    media_likers = cl.media_likers(medias[0].id)
+    medias = cl.user_medias(cl.user_id, 3)
+    media_likers = cl.media_likers(medias[random.randint(0, 2)].id)
     np.random.shuffle(media_likers)
 
     for user in media_likers:
@@ -309,7 +309,7 @@ def getMorePotentialFollowers():
             following_list_from_dict = [i for i in following.values()]
             following_list_from_dict[:1]
             np.random.shuffle(following_list_from_dict)
-            following_list_from_dict[:150]
+            following_list_from_dict[:350]
             for user_fol in following_list_from_dict:
                 current_time()
                 print(
@@ -334,7 +334,7 @@ def getMorePotentialFollowers():
                     if probably(0.99):
                         users_to_follow.append(
                             'https://www.instagram.com/' + user_fol.username)
-                        time_to_wait = random.randint(300, 600)
+                        time_to_wait = random.randint(240, 480)
                         time.sleep(time_to_wait)
                     else:
                         # Do something else 100-X% of the time
@@ -349,12 +349,12 @@ def getMorePotentialFollowers():
                         else:
                             with open('tofollow.txt', 'a') as tofollow:
                                 tofollow.write(link_to_save)
-                    time.sleep(120)
+                    time.sleep(random.randint(60, 120))
                 else:
                     omitted_accounts += 1
                 processed_accounts += 1
-                time.sleep(60)
-        time.sleep(60)
+                time.sleep(random.randint(30, 90))
+        time.sleep(random.randint(30, 90))
 
 
 def getFollowingByUsername():

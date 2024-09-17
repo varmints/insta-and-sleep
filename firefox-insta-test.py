@@ -1,5 +1,7 @@
 import time
 import random
+import json
+import os
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.support.ui import WebDriverWait
@@ -32,6 +34,32 @@ def convert_to_number(text):
         text
     return int(text)
 
+def saveCookies(driver):
+    # Get and store cookies after login
+    cookies = driver.get_cookies()
+
+    # Store cookies in a file
+    with open('cookies.json', 'w') as file:
+        json.dump(cookies, file)
+    print('New Cookies saved successfully')
+
+
+def loadCookies():
+    # Check if cookies file exists
+    if 'cookies.json' in os.listdir():
+
+        # Load cookies to a vaiable from a file
+        with open('cookies.json', 'r') as file:
+            cookies = json.load(file)
+
+        # Set stored cookies to maintain the session
+        for cookie in cookies:
+            driver.add_cookie(cookie)
+    else:
+        print('No cookies file found')
+    
+    driver.refresh() # Refresh Browser after login
+
 with open("creds.txt", "r") as f:
     USERNAME, PASSWORD = f.read().splitlines()
 
@@ -44,6 +72,10 @@ driver = webdriver.Firefox(service=firefox_service, options=options)
 driver.get("http://instagram.com")
 
 time.sleep(15)
+
+loadCookies()
+
+time.sleep(10)
 
 try:
     WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
@@ -68,6 +100,8 @@ driver.find_element(
 
 time.sleep(15)
 
+saveCookies()
+
 while True:
     to_skip = False
     with open('tofollow.txt') as f:
@@ -85,7 +119,7 @@ while True:
             print(followers, following)
             followers = convert_to_number(followers)
             following = convert_to_number(following)
-            if followers - following >= 5000:
+            if followers - following >= 5000 or following <= 50:
                 to_skip = True
         except Exception as e:
             print(e)
@@ -143,6 +177,7 @@ while True:
                 pass
     else:
         print('nok')
+        time.sleep(3600)
         continue
 
     with open(r'tofollow.txt', 'r+') as fp:

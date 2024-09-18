@@ -1,5 +1,6 @@
 creds.txt
 tofollow.txt
 session.json
+cookies.json
 geckodriver.log
 geckodriver

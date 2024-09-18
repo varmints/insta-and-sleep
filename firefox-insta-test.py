@@ -2,6 +2,7 @@ import time
 import random
 import json
 import os
+import dateutil.parser
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.support.ui import WebDriverWait
@@ -12,12 +13,15 @@ from selenium.webdriver.firefox.options import Options
 from datetime import datetime, timedelta
 from pprint import pprint
 
+
 def current_time():
     now = datetime.now()
     return print(now)
 
+
 def probably(chance=.5):
     return random.random() < chance
+
 
 def convert_to_number(text):
     if 'M' in text and '.' in text:
@@ -33,6 +37,7 @@ def convert_to_number(text):
     else:
         text
     return int(text)
+
 
 def saveCookies(driver):
     # Get and store cookies after login
@@ -57,8 +62,9 @@ def loadCookies():
             driver.add_cookie(cookie)
     else:
         print('No cookies file found')
-    
-    driver.refresh() # Refresh Browser after login
+
+    driver.refresh()  # Refresh Browser after login
+
 
 with open("creds.txt", "r") as f:
     USERNAME, PASSWORD = f.read().splitlines()
@@ -71,36 +77,39 @@ driver = webdriver.Firefox(service=firefox_service, options=options)
 
 driver.get("http://instagram.com")
 
-time.sleep(15)
+time.sleep(10)
 
 loadCookies()
 
 time.sleep(10)
 
 try:
-    WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
-        (By.XPATH, "//button[text()='Allow all cookies']"))).click()
+    driver.find_element(By.XPATH, "//a[text()='"+USERNAME+"']")
+    print('Previous session loaded')
 except:
-    pass
+    try:
+        WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
+            (By.XPATH, "//button[text()='Allow all cookies']"))).click()
+    except:
+        pass
 
-time.sleep(10)
+    time.sleep(10)
 
-driver.find_element(
-    By.XPATH, "//input[@aria-label='Phone number, username, or email']").send_keys(USERNAME)
+    driver.find_element(
+        By.XPATH, "//input[@aria-label='Phone number, username, or email']").send_keys(USERNAME)
 
-time.sleep(3)
+    time.sleep(3)
 
-driver.find_element(
-    By.XPATH, "//input[@aria-label='Password']").send_keys(PASSWORD)
+    driver.find_element(
+        By.XPATH, "//input[@aria-label='Password']").send_keys(PASSWORD)
 
-time.sleep(2)
+    time.sleep(2)
 
-driver.find_element(
-    By.XPATH, "//button[@type='submit']").click()
+    driver.find_element(
+        By.XPATH, "//button[@type='submit']").click()
 
-time.sleep(15)
-
-saveCookies()
+    time.sleep(15)
+    saveCookies(driver)
 
 while True:
     to_skip = False
@@ -136,11 +145,43 @@ while True:
             pass
 
         if not to_skip:
+            new_post_counter = 0
+            for post in medias:
+                driver.execute_script(
+                    "arguments[0].scrollIntoView({block:'center'});", post)
+                time.sleep(random.randint(5, 10))
+                parent = post.find_element(By.XPATH, "..")
+                ActionChains(driver).click(parent).perform()
+                time.sleep(random.randint(5, 10))
+                try:
+                    print("post_datetime")
+                    post_created_at = driver.find_element(
+                        By.XPATH, "(//time)[last()]").get_attribute("datetime")
+                    n_days_ago = datetime.now() - timedelta(days=60)
+                    if (n_days_ago.timestamp() < dateutil.parser.parse(post_created_at).timestamp()):
+                        new_post_counter += 1
+
+                except Exception as e:
+                    print(e)
+                    pass
+
+                try:
+                    close_btn = driver.find_element(
+                        By.CSS_SELECTOR, "svg[aria-label='Close']")
+                    close_btn.click()
+                except Exception as e:
+                    print(e)
+                    pass
+            if new_post_counter < 10:
+                to_skip = True
+
+        if not to_skip:
             # posts = [media.get_attribute('href') for media in medias]
             current_time()
             # print(posts)
             for post in medias:
-                driver.execute_script("arguments[0].scrollIntoView({block:'center'});", post)
+                driver.execute_script(
+                    "arguments[0].scrollIntoView({block:'center'});", post)
                 time.sleep(random.randint(5, 10))
                 parent = post.find_element(By.XPATH, "..")
                 ActionChains(driver).click(parent).perform()
@@ -192,8 +233,8 @@ while True:
         fp.writelines(lines[1:])
 
     if to_skip:
-        if probably(0.9):
-            time.sleep(random.randint(120, 240))
+        if probably(0.95):
+            time.sleep(random.randint(60, 120))
         else:
             time.sleep(random.randint(1200, 2400))
     else:

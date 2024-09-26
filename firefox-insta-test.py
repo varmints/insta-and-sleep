@@ -135,6 +135,14 @@ while True:
             pass
 
         try:
+            follow_back_btn = WebDriverWait(driver, 20).until(
+                    EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow Back']")))
+            follow_back_btn.click()
+        except Exception as e:
+            to_skip = False
+            pass
+
+        try:
             follow_btn = WebDriverWait(driver, 20).until(
                 EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow']")))
             medias = WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located(
@@ -144,36 +152,35 @@ while True:
             to_skip = True
             pass
 
-        if not to_skip:
-            new_post_counter = 0
-            for post in medias:
-                driver.execute_script(
-                    "arguments[0].scrollIntoView({block:'center'});", post)
-                time.sleep(random.randint(5, 10))
-                parent = post.find_element(By.XPATH, "..")
-                ActionChains(driver).click(parent).perform()
-                time.sleep(random.randint(5, 10))
-                try:
-                    print("post_datetime")
-                    post_created_at = driver.find_element(
-                        By.XPATH, "(//time)[last()]").get_attribute("datetime")
-                    n_days_ago = datetime.now() - timedelta(days=60)
-                    if (n_days_ago.timestamp() < dateutil.parser.parse(post_created_at).timestamp()):
-                        new_post_counter += 1
+        # if not to_skip:
+        #     new_post_counter = 0
+        #     for post in medias:
+        #         driver.execute_script(
+        #             "arguments[0].scrollIntoView({block:'center'});", post)
+        #         time.sleep(random.randint(5, 10))
+        #         parent = post.find_element(By.XPATH, "..")
+        #         ActionChains(driver).click(parent).perform()
+        #         time.sleep(random.randint(5, 10))
+        #         try:
+        #             post_created_at = driver.find_element(
+        #                 By.XPATH, "(//time)[last()]").get_attribute("datetime")
+        #             n_days_ago = datetime.now() - timedelta(days=60)
+        #             if (n_days_ago.timestamp() < dateutil.parser.parse(post_created_at).timestamp()):
+        #                 new_post_counter += 1
 
-                except Exception as e:
-                    print(e)
-                    pass
+        #         except Exception as e:
+        #             print(e)
+        #             pass
 
-                try:
-                    close_btn = driver.find_element(
-                        By.CSS_SELECTOR, "svg[aria-label='Close']")
-                    close_btn.click()
-                except Exception as e:
-                    print(e)
-                    pass
-            if new_post_counter < 10:
-                to_skip = True
+        #         try:
+        #             close_btn = driver.find_element(
+        #                 By.CSS_SELECTOR, "svg[aria-label='Close']")
+        #             close_btn.click()
+        #         except Exception as e:
+        #             print(e)
+        #             pass
+        #     if new_post_counter < 10:
+        #         to_skip = True
 
         if not to_skip:
             # posts = [media.get_attribute('href') for media in medias]
@@ -182,10 +189,10 @@ while True:
             for post in medias:
                 driver.execute_script(
                     "arguments[0].scrollIntoView({block:'center'});", post)
-                time.sleep(random.randint(5, 10))
+                time.sleep(random.randint(4, 8))
                 parent = post.find_element(By.XPATH, "..")
                 ActionChains(driver).click(parent).perform()
-                time.sleep(random.randint(5, 10))
+                time.sleep(random.randint(4, 8))
                 try:
                     list_of_like_btn = driver.find_elements(
                         By.CSS_SELECTOR, "svg[aria-label='Like']")
@@ -193,7 +200,7 @@ while True:
                 except Exception as e:
                     print(e)
                     pass
-                time.sleep(random.randint(5, 10))
+                time.sleep(random.randint(4, 8))
                 try:
                     close_btn = driver.find_element(
                         By.CSS_SELECTOR, "svg[aria-label='Close']")
@@ -201,9 +208,9 @@ while True:
                 except Exception as e:
                     print(e)
                     pass
-                time.sleep(random.randint(5, 10))
+                time.sleep(random.randint(4, 8))
             driver.get(first_line)
-            time.sleep(random.randint(5, 10))
+            time.sleep(random.randint(4, 8))
             try:
                 follow_btn = WebDriverWait(driver, 20).until(
                     EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow']")))
@@ -234,8 +241,8 @@ while True:
 
     if to_skip:
         if probably(0.95):
-            time.sleep(random.randint(60, 120))
+            time.sleep(random.randint(30, 60))
         else:
-            time.sleep(random.randint(1200, 2400))
+            time.sleep(random.randint(600, 900))
     else:
-        time.sleep(random.randint(1800, 2400))
+        time.sleep(random.randint(600, 900))

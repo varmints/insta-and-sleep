@@ -217,28 +217,8 @@ def clearFollowing():
     login_user(cl)
 
     try:
-        print(f"befor user_followers")
-        followers = cl.user_followers(cl.user_id, 600)
-        followers_arr = []
-        for i, user in enumerate(followers):
-            followers_arr.append(user.pk)
-        print(f"after user_followers")
-    except:
-        login_user(cl)
-        print(f"befor user_followers 2")
-        followers = cl.user_followers(cl.user_id, 600)
-        followers_arr = []
-        for i, user in enumerate(followers):
-            followers_arr.append(user)
-        print(f"after user_followers 2")
-
-    print(f"user_followers")
-    print(followers_arr)
-    print(len(followers_arr))
-
-    try:
         print(f"befor user_following")
-        following = cl.user_following(cl.user_id, 600)
+        following = cl.user_following(cl.user_id, 2000)
         following_arr = []
         for i, user in enumerate(following):
             following_arr.append(user)
@@ -246,7 +226,7 @@ def clearFollowing():
     except:
         login_user(cl)
         print(f"befor user_following 2")
-        following = cl.user_following(cl.user_id, 600)
+        following = cl.user_following(cl.user_id, 2000)
         following_arr = []
         for i, user in enumerate(following):
             following_arr.append(user)
@@ -255,6 +235,26 @@ def clearFollowing():
     print(f"user_following")
     print(following_arr)
     print(len(following_arr))
+
+    try:
+        print(f"befor user_followers")
+        followers = cl.user_followers(cl.user_id, 2000)
+        followers_arr = []
+        for i, user in enumerate(followers):
+            followers_arr.append(user.pk)
+        print(f"after user_followers")
+    except:
+        login_user(cl)
+        print(f"befor user_followers 2")
+        followers = cl.user_followers(cl.user_id, 2000)
+        followers_arr = []
+        for i, user in enumerate(followers):
+            followers_arr.append(user)
+        print(f"after user_followers 2")
+
+    print(f"user_followers")
+    print(followers_arr)
+    print(len(followers_arr))
 
     time.sleep(60)
 

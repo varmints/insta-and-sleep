@@ -396,7 +396,7 @@ def deleteUselessFollowing():
     login_user(cl)
 
     while True:
-        with open('tofollow.txt') as f:
+        with open('todelete.txt') as f:
             user = f.readline().strip('\n')
 
         if user != '':
@@ -407,8 +407,9 @@ def deleteUselessFollowing():
                 print(f"Succes unfollow user: {user_info.username}")
             except Exception as e:
                 print(e)
+                break
 
-            with open(r'tofollow.txt', 'r+') as fp:
+            with open(r'todelete.txt', 'r+') as fp:
                 # read an store all lines into list
                 lines = fp.readlines()
                 # move file pointer to the beginning of a file
@@ -426,7 +427,7 @@ def deleteUselessFollowing():
 def main():
     main_menu_title = "  Insta & Sleep.\n  Press Q or Esc to quit. \n"
     main_menu_items = ["Replace caption",
-                       "Like 20 most recent posts by #hashtag", "Create device", "Clear DM comments", "Clear useless Following", "Get more potential followers", "Get Following by username", "Clear useless Following from file" "Quit"]
+                       "Like 20 most recent posts by #hashtag", "Create device", "Clear DM comments", "Clear useless Following", "Get more potential followers", "Get Following by username", "Clear useless Following from file", "Quit"]
     main_menu_cursor = "# "
     main_menu_cursor_style = ("fg_red", "bold")
     main_menu_style = ("bg_red", "fg_yellow")

@@ -391,10 +391,42 @@ def getFollowingByUsername():
             continue
 
 
+def deleteUselessFollowing():
+    cl = Client()
+    login_user(cl)
+
+    while True:
+        with open('tofollow.txt') as f:
+            user = f.readline().strip('\n')
+
+        if user != '':
+            print(datetime.now().strftime("%H:%M:%S"))
+            try:
+                user_info = cl.user_info(user)
+                cl.user_unfollow(user)
+                print(f"Succes unfollow user: {user_info.username}")
+            except Exception as e:
+                print(e)
+
+            with open(r'tofollow.txt', 'r+') as fp:
+                # read an store all lines into list
+                lines = fp.readlines()
+                # move file pointer to the beginning of a file
+                fp.seek(0)
+                # truncate the file
+                fp.truncate()
+                # start writing lines except the first line
+                # lines[1:] from line 2 to last line
+                fp.writelines(lines[1:])
+        else:
+            print("No more users to delete...")
+            break
+
+
 def main():
     main_menu_title = "  Insta & Sleep.\n  Press Q or Esc to quit. \n"
     main_menu_items = ["Replace caption",
-                       "Like 20 most recent posts by #hashtag", "Create device", "Clear DM comments", "Clear useless Following", "Get more potential followers", "Get Following by username", "Quit"]
+                       "Like 20 most recent posts by #hashtag", "Create device", "Clear DM comments", "Clear useless Following", "Get more potential followers", "Get Following by username", "Clear useless Following from file" "Quit"]
     main_menu_cursor = "# "
     main_menu_cursor_style = ("fg_red", "bold")
     main_menu_style = ("bg_red", "fg_yellow")
@@ -451,7 +483,10 @@ def main():
                 elif replace_caption_sel == 6:
                     replace_caption_again(
                         replace_caption_menu_items[replace_caption_sel])
-                elif replace_caption_sel == 7 or replace_caption_sel == None:
+                elif replace_caption_sel == 7:
+                    replace_caption_again(
+                        replace_caption_menu_items[replace_caption_sel])
+                elif replace_caption_sel == 8 or replace_caption_sel == None:
                     replace_caption_menu_back = True
                     print("Back Selected")
             replace_caption_menu_back = False
@@ -467,7 +502,9 @@ def main():
             getMorePotentialFollowers()
         elif main_sel == 6:
             getFollowingByUsername()
-        elif main_sel == 7 or main_sel == None:
+        elif main_sel == 7:
+            deleteUselessFollowing()
+        elif main_sel == 8 or main_sel == None:
             main_menu_exit = True
             print("Quit Selected")
 

@@ -270,24 +270,6 @@ def clearFollowing():
     len_users_to_delete = len(users_to_delete)
     print(f"{len_users_to_delete} accounts left to delete")
 
-    for user in users_to_delete:
-        print(datetime.now().strftime("%H:%M:%S"))
-        try:
-            print(user)
-            user_info = cl.user_info(user)
-            cl.user_unfollow(user)
-            print(f"Succes unfollow user: {user_info.username}")
-            len_users_to_delete -= 1
-            print(f"{len_users_to_delete} accounts left to delete")
-        except:
-            print("Except")
-            login_user(cl)
-            print(user)
-            user_info = cl.user_info(user)
-            cl.user_unfollow(user)
-            print(f"Succes unfollow user: {user_info.username}")
-
-
 def getMorePotentialFollowers():
     cl = Client()
     login_user(cl)
@@ -396,6 +378,7 @@ def deleteUselessFollowing():
     login_user(cl)
 
     while True:
+        login_required = False
         with open('todelete.txt') as f:
             user = f.readline().strip('\n')
 
@@ -407,18 +390,25 @@ def deleteUselessFollowing():
                 print(f"Succes unfollow user: {user_info.username}")
             except Exception as e:
                 print(e)
-                break
+                login_required = True
+                pass
 
-            with open(r'todelete.txt', 'r+') as fp:
-                # read an store all lines into list
-                lines = fp.readlines()
-                # move file pointer to the beginning of a file
-                fp.seek(0)
-                # truncate the file
-                fp.truncate()
-                # start writing lines except the first line
-                # lines[1:] from line 2 to last line
-                fp.writelines(lines[1:])
+            if not login_required:
+                with open(r'todelete.txt', 'r+') as fp:
+                    # read an store all lines into list
+                    lines = fp.readlines()
+                    # move file pointer to the beginning of a file
+                    fp.seek(0)
+                    # truncate the file
+                    fp.truncate()
+                    # start writing lines except the first line
+                    # lines[1:] from line 2 to last line
+                    fp.writelines(lines[1:])
+            else:
+                time.sleep(random.randint(3600, 4200))
+                login_user(cl)
+            
+
         else:
             print("No more users to delete...")
             break

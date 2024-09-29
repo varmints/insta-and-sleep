@@ -121,6 +121,12 @@ while True:
         time.sleep(random.randint(10, 15))
 
         try:
+            WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, "svg[aria-label='Notifications']")))
+        except:
+            break
+
+        try:
             followers = driver.find_element(
                 By.XPATH, "//a[text()[contains(.,'followers')]]/span/span").text
             following = driver.find_element(
@@ -136,7 +142,7 @@ while True:
 
         try:
             follow_back_btn = WebDriverWait(driver, 20).until(
-                    EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow Back']")))
+                EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow Back']")))
             follow_back_btn.click()
         except Exception as e:
             to_skip = False

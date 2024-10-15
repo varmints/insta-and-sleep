@@ -111,6 +111,8 @@ except:
     time.sleep(15)
     saveCookies(driver)
 
+processed_accounts = 0
+
 while True:
     to_skip = False
     with open('tofollow.txt') as f:
@@ -127,20 +129,6 @@ while True:
             break
 
         try:
-            followers = driver.find_element(
-                By.XPATH, "//a[text()[contains(.,'followers')]]/span/span").text
-            following = driver.find_element(
-                By.XPATH, "//a[text()[contains(.,'following')]]/span/span").text
-            print(followers, following)
-            followers = convert_to_number(followers)
-            following = convert_to_number(following)
-            if followers - following >= 5000 or following <= 50:
-                to_skip = True
-        except Exception as e:
-            print(e)
-            pass
-
-        try:
             follow_back_btn = WebDriverWait(driver, 20).until(
                 EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow Back']")))
             follow_back_btn.click()
@@ -149,13 +137,31 @@ while True:
             pass
 
         try:
+            followers = driver.find_element(
+                By.XPATH, "//a[text()[contains(.,'followers')]]/span/span").text
+            following = driver.find_element(
+                By.XPATH, "//a[text()[contains(.,'following')]]/span/span").text
+            followers = convert_to_number(followers)
+            following = convert_to_number(following)
+            print(followers, following)
+            if followers - following >= 5000 or following <= 50:
+                to_skip = True
+        except Exception as e:
+            print("Error 1")
+            print(e)
+            pass
+
+        try:
             follow_btn = WebDriverWait(driver, 20).until(
                 EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow']")))
+            username = first_line.removeprefix('https://www.instagram.com')
             medias = WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located(
-                (By.XPATH, "//a[starts-with(@href,'/p/')]")))
+                (By.XPATH, "//a[starts-with(@href,'"+username+"p/')]")))
         except Exception as e:
+            print("Error 2")
             print(e)
             to_skip = True
+            break
             pass
 
         # if not to_skip:
@@ -204,6 +210,7 @@ while True:
                         By.CSS_SELECTOR, "svg[aria-label='Like']")
                     list_of_like_btn[0].click()
                 except Exception as e:
+                    print("Error 3")
                     print(e)
                     pass
                 time.sleep(random.randint(4, 8))
@@ -212,6 +219,7 @@ while True:
                         By.CSS_SELECTOR, "svg[aria-label='Close']")
                     close_btn.click()
                 except Exception as e:
+                    print("Error 4")
                     print(e)
                     pass
                 time.sleep(random.randint(4, 8))
@@ -222,12 +230,14 @@ while True:
                     EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow']")))
                 follow_btn.click()
             except:
+                print("Error 5")
                 pass
             try:
                 follow_back_btn = WebDriverWait(driver, 20).until(
                     EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow Back']")))
                 follow_back_btn.click()
             except:
+                print("Error 6")
                 pass
     else:
         print('nok')
@@ -244,7 +254,7 @@ while True:
         # start writing lines except the first line
         # lines[1:] from line 2 to last line
         fp.writelines(lines[1:])
-
+    processed_accounts += 1
     if to_skip:
         if probably(0.95):
             time.sleep(random.randint(30, 60))
@@ -252,3 +262,7 @@ while True:
             time.sleep(random.randint(600, 900))
     else:
         time.sleep(random.randint(600, 900))
+    
+    if processed_accounts % 300 == 0:
+        print("Time to break...")
+        time.sleep(21600)

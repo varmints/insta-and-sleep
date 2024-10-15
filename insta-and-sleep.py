@@ -270,6 +270,7 @@ def clearFollowing():
     len_users_to_delete = len(users_to_delete)
     print(f"{len_users_to_delete} accounts left to delete")
 
+
 def getMorePotentialFollowers():
     cl = Client()
     login_user(cl)
@@ -389,7 +390,7 @@ def deleteUselessFollowing():
         if user != '':
             print(datetime.now().strftime("%H:%M:%S"))
             try:
-                user_info = cl.user_info(user)
+                user_info = cl.user_info_by_username(user)
                 cl.user_unfollow(user)
                 print(f"Succes unfollow user: {user_info.username}")
             except Exception as e:
@@ -411,7 +412,6 @@ def deleteUselessFollowing():
             else:
                 time.sleep(random.randint(3600, 4200))
                 login_user(cl)
-            
 
         else:
             print("No more users to delete...")

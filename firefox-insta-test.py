@@ -2,7 +2,6 @@ import time
 import random
 import json
 import os
-import dateutil.parser
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.support.ui import WebDriverWait
@@ -10,7 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.firefox.options import Options
-from datetime import datetime, timedelta
+from datetime import datetime
 from pprint import pprint
 
 
@@ -262,7 +261,7 @@ while True:
             time.sleep(random.randint(600, 900))
     else:
         time.sleep(random.randint(600, 900))
-    
+
     if processed_accounts % 300 == 0:
         print("Time to break...")
         time.sleep(21600)

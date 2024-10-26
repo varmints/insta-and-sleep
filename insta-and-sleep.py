@@ -24,6 +24,14 @@ logger = logging.getLogger()
 def probably(chance=.5):
     return random.random() < chance
 
+# define the countdown func. 
+def countdown(t): 
+    while t: 
+        mins, secs = divmod(t, 60) 
+        timer = '{:02d}:{:02d}'.format(mins, secs) 
+        print(timer, end="\r") 
+        time.sleep(1) 
+        t -= 1
 
 def current_time():
     now = datetime.now()
@@ -288,7 +296,13 @@ def getMorePotentialFollowers():
     for user in media_likers:
         print(f"Media liker username: {user.username}")
         if user.username != cl.username:
-            following = cl.user_following(user.pk, 10)
+            try:
+                following = cl.user_following(user.pk, 10)
+            except:
+                print("Exception when user following.")
+                time.sleep(10800)
+                login_user(cl)
+                continue
             following_list_from_dict = [i for i in following.values()]
             following_list_from_dict[:1]
             np.random.shuffle(following_list_from_dict)
@@ -298,13 +312,18 @@ def getMorePotentialFollowers():
                 print(
                     f"Processed accounts: {processed_accounts}; Omitted accounts: {omitted_accounts}; Followed accounts: {followed_accounts}; Accounts to follow: {accounts_to_follow}")
                 try:
+                    print("fetch user media")
                     medias = cl.user_medias(user_fol.pk, 6)
                 except:
                     current_time()
                     print("Error when fetch posts. Private account?")
                     omitted_accounts += 1
+                    time.sleep(600)
+                    login_user(cl)
+                    continue
                 rate_counter = 0
                 permission_to_save = False
+                print("I have user medias!")
                 for media in medias:
                     post_created_at = media.taken_at
                     n_days_ago = datetime.now() - timedelta(days=14)
@@ -317,7 +336,7 @@ def getMorePotentialFollowers():
                     if probably(0.99):
                         users_to_follow.append(
                             'https://www.instagram.com/' + user_fol.username)
-                        time_to_wait = random.randint(240, 480)
+                        time_to_wait = random.randint(180, 420)
                         time.sleep(time_to_wait)
                     else:
                         # Do something else 100-X% of the time
@@ -332,7 +351,7 @@ def getMorePotentialFollowers():
                         else:
                             with open('tofollow.txt', 'a') as tofollow:
                                 tofollow.write(link_to_save)
-                    time.sleep(random.randint(60, 120))
+                    time.sleep(random.randint(30, 60))
                 else:
                     omitted_accounts += 1
                 processed_accounts += 1
@@ -340,8 +359,8 @@ def getMorePotentialFollowers():
                     print("Time to break...")
                     time.sleep(21600)
                 else:
-                    time.sleep(random.randint(30, 90))
-        time.sleep(random.randint(30, 90))
+                    time.sleep(random.randint(20, 60))
+        time.sleep(random.randint(20, 60))
 
 
 def getFollowingByUsername():

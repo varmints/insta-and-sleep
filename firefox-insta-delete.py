@@ -100,14 +100,36 @@ while True:
     if first_line != '':
         print(first_line)
         driver.get("http://instagram.com/" + first_line)
+        time.sleep(random.randint(10, 15))
 
         try:
-            follow_back_btn = WebDriverWait(driver, 20).until(
-                EC.element_to_be_clickable((By.XPATH, "//div[text()='Following']")))
-            follow_back_btn.click()
+            WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, "svg[aria-label='Notifications']")))
         except Exception as e:
+            print("Error 1")
             print(e)
             break
+
+        try:
+            following_btn = WebDriverWait(driver, 20).until(
+                EC.element_to_be_clickable((By.XPATH, "//div[text()='Following']")))
+            time.sleep(random.randint(5, 15))
+            following_btn.click()
+            time.sleep(random.randint(15, 30))
+            try:
+                unfollow_btn = WebDriverWait(driver, 20).until(
+                    EC.element_to_be_clickable((By.XPATH, "//span[text()='Unfollow']")))
+                time.sleep(random.randint(5, 15))
+                unfollow_btn.click()
+                time.sleep(random.randint(15, 30))
+            except Exception as e:
+                print("Error 2")
+                print(e)
+                break
+        except Exception as e:
+            print("Error 3")
+            print(e)
+            pass
 
         with open(r'todelete.txt', 'r+') as fp:
             # read an store all lines into list
@@ -121,3 +143,5 @@ while True:
             fp.writelines(lines[1:])
         unfollowed_accounts += 1
         print(f'Unfollowed accounts: {unfollowed_accounts}')
+    else:
+        break

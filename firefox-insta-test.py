@@ -21,6 +21,15 @@ def current_time():
 def probably(chance=.5):
     return random.random() < chance
 
+# define the countdown func. 
+def countdown(t): 
+    while t: 
+        mins, secs = divmod(t, 60) 
+        timer = '{:02d}:{:02d}'.format(mins, secs) 
+        print(timer, end="\r") 
+        time.sleep(1) 
+        t -= 1
+
 
 def convert_to_number(text):
     if 'M' in text and '.' in text:
@@ -64,9 +73,39 @@ def loadCookies():
 
     driver.refresh()  # Refresh Browser after login
 
-
-with open("creds.txt", "r") as f:
-    USERNAME, PASSWORD = f.read().splitlines()
+def login(driver):
+    with open("creds.txt", "r") as f:
+        USERNAME, PASSWORD = f.read().splitlines()
+    driver.get("http://instagram.com")
+    time.sleep(10)
+    
+    loadCookies()
+    
+    time.sleep(10)
+    try:
+        driver.find_element(By.XPATH, "//a[text()='"+USERNAME+"']")
+        print('Previous session loaded')
+    except:
+        try:
+            WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Allow all cookies']"))).click()
+        except:
+            pass
+        
+        time.sleep(10)
+        
+        driver.find_element(By.XPATH, "//input[@aria-label='Phone number, username, or email']").send_keys(USERNAME)
+        
+        time.sleep(3)
+        
+        driver.find_element(By.XPATH, "//input[@aria-label='Password']").send_keys(PASSWORD)
+        
+        time.sleep(2)
+        
+        driver.find_element(By.XPATH, "//button[@type='submit']").click()
+        
+        time.sleep(15)
+        
+        saveCookies(driver)
 
 options = Options()
 options.set_preference('intl.accept_languages', 'en-US, en')
@@ -74,41 +113,7 @@ firefox_service = FirefoxService(
     executable_path='./geckodriver', log_output='./geckodriver.log')
 driver = webdriver.Firefox(service=firefox_service, options=options)
 
-driver.get("http://instagram.com")
-
-time.sleep(10)
-
-loadCookies()
-
-time.sleep(10)
-
-try:
-    driver.find_element(By.XPATH, "//a[text()='"+USERNAME+"']")
-    print('Previous session loaded')
-except:
-    try:
-        WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
-            (By.XPATH, "//button[text()='Allow all cookies']"))).click()
-    except:
-        pass
-
-    time.sleep(10)
-
-    driver.find_element(
-        By.XPATH, "//input[@aria-label='Phone number, username, or email']").send_keys(USERNAME)
-
-    time.sleep(3)
-
-    driver.find_element(
-        By.XPATH, "//input[@aria-label='Password']").send_keys(PASSWORD)
-
-    time.sleep(2)
-
-    driver.find_element(
-        By.XPATH, "//button[@type='submit']").click()
-
-    time.sleep(15)
-    saveCookies(driver)
+login(driver)
 
 processed_accounts = 0
 
@@ -124,8 +129,18 @@ while True:
         try:
             WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
                 (By.CSS_SELECTOR, "svg[aria-label='Notifications']")))
-        except:
-            break
+        except Exception as e:
+            current_time()
+            print(e)
+            countdown(10800)
+            login(driver)
+            try:
+                dismiss_btn = WebDriverWait(driver, 20).until(
+                EC.element_to_be_clickable((By.XPATH, "//span[text()='Dismiss']")))
+                dismiss_btn.click()
+            except:
+                print("Can't find dismiss button.")
+            continue
 
         try:
             follow_back_btn = WebDriverWait(driver, 20).until(
@@ -156,11 +171,11 @@ while True:
             username = first_line.removeprefix('https://www.instagram.com')
             medias = WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located(
                 (By.XPATH, "//a[starts-with(@href,'"+username+"p/')]")))
+            # add reels in future
         except Exception as e:
             print("Error 2")
             print(e)
             to_skip = True
-            break
             pass
 
         # if not to_skip:
@@ -236,7 +251,6 @@ while True:
                     EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow Back']")))
                 follow_back_btn.click()
             except:
-                print("Error 6")
                 pass
     else:
         print('nok')
@@ -256,11 +270,11 @@ while True:
     processed_accounts += 1
     if to_skip:
         if probably(0.95):
-            time.sleep(random.randint(30, 60))
+            time.sleep(random.randint(20, 60))
         else:
-            time.sleep(random.randint(600, 900))
+            time.sleep(random.randint(360, 720))
     else:
-        time.sleep(random.randint(600, 900))
+        time.sleep(random.randint(360, 720))
 
     if processed_accounts % 300 == 0:
         print("Time to break...")

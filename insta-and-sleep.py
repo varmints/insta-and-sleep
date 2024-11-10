@@ -323,7 +323,6 @@ def getMorePotentialFollowers():
                     continue
                 rate_counter = 0
                 permission_to_save = False
-                print("I have user medias!")
                 for media in medias:
                     post_created_at = media.taken_at
                     n_days_ago = datetime.now() - timedelta(days=14)

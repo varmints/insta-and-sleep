@@ -124,7 +124,7 @@ while True:
     if first_line != '':
         print(first_line)
         driver.get(first_line)
-        time.sleep(random.randint(10, 15))
+        time.sleep(random.randint(5, 10))
 
         try:
             WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
@@ -132,7 +132,7 @@ while True:
         except Exception as e:
             current_time()
             print(e)
-            countdown(10800)
+            countdown(3600)
             login(driver)
             try:
                 dismiss_btn = WebDriverWait(driver, 20).until(
@@ -274,7 +274,7 @@ while True:
         else:
             time.sleep(random.randint(360, 720))
     else:
-        time.sleep(random.randint(360, 720))
+        time.sleep(random.randint(300, 600))
 
     if processed_accounts % 300 == 0:
         print("Time to break...")

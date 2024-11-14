@@ -312,7 +312,6 @@ def getMorePotentialFollowers():
                 print(
                     f"Processed accounts: {processed_accounts}; Omitted accounts: {omitted_accounts}; Followed accounts: {followed_accounts}; Accounts to follow: {accounts_to_follow}")
                 try:
-                    print("fetch user media")
                     medias = cl.user_medias(user_fol.pk, 6)
                 except:
                     current_time()
@@ -356,7 +355,7 @@ def getMorePotentialFollowers():
                 processed_accounts += 1
                 if processed_accounts % 800 == 0:
                     print("Time to break...")
-                    time.sleep(21600)
+                    time.sleep(18000)
                 else:
                     time.sleep(random.randint(20, 60))
         time.sleep(random.randint(20, 60))

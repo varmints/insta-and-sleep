@@ -286,14 +286,14 @@ while True:
                     EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow']")))
                 follow_btn.click()
             except:
-                print("Error 5")
-                pass
-            try:
-                follow_back_btn = WebDriverWait(driver, 20).until(
-                    EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow Back']")))
-                follow_back_btn.click()
-            except:
-                print("Error 6")
+                print("Can't find 'Follow' button.")
+                try:
+                    follow_back_btn = WebDriverWait(driver, 20).until(
+                        EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow Back']")))
+                    follow_back_btn.click()
+                except:
+                    print("Can't find 'Follow Back' button.")
+                    pass
                 pass
             login_error_count = 0
     else:

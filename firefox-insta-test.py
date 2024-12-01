@@ -127,8 +127,8 @@ def unfollow_useless_following():
         print("Nothing to unfollow.")
 
 
-def login(driver, is_clear_cookies=False):
-    if is_clear_cookies:
+def login(driver, login_error_count):
+    if login_error_count >= 2:
         with open("cookies.json", "w") as f:
             f.write("{"+"}")
 
@@ -197,10 +197,7 @@ while True:
             current_time()
             print("Can't find 'Notifications' button.")
             countdown(3600)
-            if login_error_count <= 3:
-                login(driver)
-            else:
-                login(driver, True)
+            login(driver, login_error_count)
             try:
                 dismiss_btn = WebDriverWait(driver, 20).until(
                     EC.element_to_be_clickable((By.XPATH, "//span[text()='Dismiss']")))

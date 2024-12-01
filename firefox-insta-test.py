@@ -21,13 +21,15 @@ def current_time():
 def probably(chance=.5):
     return random.random() < chance
 
-# define the countdown func. 
-def countdown(t): 
-    while t: 
-        mins, secs = divmod(t, 60) 
-        timer = '{:02d}:{:02d}'.format(mins, secs) 
-        print(timer, end="\r") 
-        time.sleep(1) 
+# define the countdown func.
+
+
+def countdown(t):
+    while t:
+        mins, secs = divmod(t, 60)
+        timer = '{:02d}:{:02d}'.format(mins, secs)
+        print(timer, end="\r")
+        time.sleep(1)
         t -= 1
 
 
@@ -73,39 +75,44 @@ def loadCookies():
 
     driver.refresh()  # Refresh Browser after login
 
+
 def login(driver):
     with open("creds.txt", "r") as f:
         USERNAME, PASSWORD = f.read().splitlines()
     driver.get("http://instagram.com")
     time.sleep(10)
-    
+
     loadCookies()
-    
+
     time.sleep(10)
     try:
         driver.find_element(By.XPATH, "//a[text()='"+USERNAME+"']")
         print('Previous session loaded')
     except:
         try:
-            WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Allow all cookies']"))).click()
+            WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
+                (By.XPATH, "//button[text()='Allow all cookies']"))).click()
         except:
             pass
-        
+
         time.sleep(10)
-        
-        driver.find_element(By.XPATH, "//input[@aria-label='Phone number, username, or email']").send_keys(USERNAME)
-        
+
+        driver.find_element(
+            By.XPATH, "//input[@aria-label='Phone number, username, or email']").send_keys(USERNAME)
+
         time.sleep(3)
-        
-        driver.find_element(By.XPATH, "//input[@aria-label='Password']").send_keys(PASSWORD)
-        
+
+        driver.find_element(
+            By.XPATH, "//input[@aria-label='Password']").send_keys(PASSWORD)
+
         time.sleep(2)
-        
+
         driver.find_element(By.XPATH, "//button[@type='submit']").click()
-        
+
         time.sleep(15)
-        
+
         saveCookies(driver)
+
 
 options = Options()
 options.set_preference('intl.accept_languages', 'en-US, en')
@@ -136,7 +143,7 @@ while True:
             login(driver)
             try:
                 dismiss_btn = WebDriverWait(driver, 20).until(
-                EC.element_to_be_clickable((By.XPATH, "//span[text()='Dismiss']")))
+                    EC.element_to_be_clickable((By.XPATH, "//span[text()='Dismiss']")))
                 dismiss_btn.click()
             except:
                 print("Can't find dismiss button.")
@@ -276,6 +283,6 @@ while True:
     else:
         time.sleep(random.randint(300, 600))
 
-    if processed_accounts % 300 == 0:
+    if processed_accounts % 200 == 0:
         print("Time to break...")
-        time.sleep(21600)
+        time.sleep(14400)

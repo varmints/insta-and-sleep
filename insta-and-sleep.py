@@ -18,20 +18,21 @@ from datetime import datetime, timedelta
 # json.sessions(json.load(resp), indent=2)
 logger = logging.getLogger()
 
-# By default returns True 50% of the time.
-
 
 def probably(chance=.5):
+    # By default returns True 50% of the time.
     return random.random() < chance
 
-# define the countdown func. 
-def countdown(t): 
-    while t: 
-        mins, secs = divmod(t, 60) 
-        timer = '{:02d}:{:02d}'.format(mins, secs) 
-        print(timer, end="\r") 
-        time.sleep(1) 
+
+def countdown(t):
+    # define the countdown func.
+    while t:
+        mins, secs = divmod(t, 60)
+        timer = '{:02d}:{:02d}'.format(mins, secs)
+        print(timer, end="\r")
+        time.sleep(1)
         t -= 1
+
 
 def current_time():
     now = datetime.now()
@@ -279,7 +280,10 @@ def clearFollowing():
     print(f"{len_users_to_delete} accounts left to delete")
 
 
-def getMorePotentialFollowers():
+def get_more_potential_followers(type):
+    if type == "BY USERNAME":
+        print("Type username:")
+        user_to_check_input = input()
     cl = Client()
     login_user(cl)
 
@@ -289,76 +293,158 @@ def getMorePotentialFollowers():
     followed_accounts = 0
     accounts_to_follow = 0
 
-    medias = cl.user_medias(cl.user_id, 3)
-    media_likers = cl.media_likers(medias[random.randint(0, 2)].id)
-    np.random.shuffle(media_likers)
+    if type == "BY USERNAME":
+        user_to_check = cl.user_info_by_username(user_to_check_input)
+        try:
+            followings = cl.user_following(user_to_check.pk, 600)
+            users = []
+            for i, user in enumerate(followings):
+                users.append(user)
+            np.random.shuffle(users)
+            print("Number of users")
+            print(len(users))
+        except:
+            print("Exception when user following.")
+            time.sleep(10800)
+    else:
+        medias = cl.user_medias(cl.user_id, 3)
+        users = cl.media_likers(medias[random.randint(0, 2)].id)
+        np.random.shuffle(users)
 
-    for user in media_likers:
-        print(f"Media liker username: {user.username}")
-        if user.username != cl.username:
+    if type == "BY USERNAME":
+        print("users")
+        print(users)
+        for user in users:
+            current_time()
+            print(
+                f"Processed accounts: {processed_accounts}; Omitted accounts: {omitted_accounts}; Followed accounts: {followed_accounts}; Accounts to follow: {accounts_to_follow}")
             try:
-                following = cl.user_following(user.pk, 10)
+                user_fol = cl.user_info(user)
+                print(user_fol)
             except:
-                print("Exception when user following.")
-                time.sleep(10800)
+                print("Error when fetch user info.")
+            try:
+                medias = cl.user_medias(user_fol.pk, 6)
+            except:
+                current_time()
+                print("Error when fetch posts. Private account?")
+                omitted_accounts += 1
+                time.sleep(600)
                 login_user(cl)
                 continue
-            following_list_from_dict = [i for i in following.values()]
-            following_list_from_dict[:1]
-            np.random.shuffle(following_list_from_dict)
-            following_list_from_dict[:350]
-            for user_fol in following_list_from_dict:
+            try:
+                medias = cl.user_medias(user_fol.pk, 6)
+                print(medias)
+            except:
                 current_time()
-                print(
-                    f"Processed accounts: {processed_accounts}; Omitted accounts: {omitted_accounts}; Followed accounts: {followed_accounts}; Accounts to follow: {accounts_to_follow}")
+                print("Error when fetch posts. Private account?")
+                omitted_accounts += 1
+                time.sleep(600)
+                login_user(cl)
+                continue
+            rate_counter = 0
+            permission_to_save = False
+            for media in medias:
+                post_created_at = media.taken_at
+                n_days_ago = datetime.now() - timedelta(days=14)
+                if (n_days_ago.timestamp() < post_created_at.timestamp()) and (rate_counter <= 5):
+                    rate_counter += 1
+            if rate_counter >= 4:
+                permission_to_save = True
+            if permission_to_save:
+                # Do something X% of the time
+                if probably(0.99):
+                    users_to_follow.append(
+                        'https://www.instagram.com/' + user_fol.username)
+                    time.sleep(random.randint(180, 420))
+                else:
+                    # Do something else 100-X% of the time
+                    users_to_follow.append(
+                        'https://www.instagram.com/' + user_fol.username)
+                accounts_to_follow += 1
+                with open('tofollow.txt', 'r') as tofollow:
+                    link_to_save = 'https://www.instagram.com/' + user_fol.username + '/\n'
+                    if link_to_save in tofollow.read():
+                        current_time()
+                        print(f"{link_to_save} is already saved")
+                    else:
+                        with open('tofollow.txt', 'a') as tofollow:
+                            tofollow.write(link_to_save)
+                time.sleep(random.randint(30, 60))
+            else:
+                omitted_accounts += 1
+            processed_accounts += 1
+            if processed_accounts % 800 == 0:
+                print("Time to break...")
+                time.sleep(18000)
+            else:
+                time.sleep(random.randint(20, 60))
+    else:
+        for user in users:
+            print(f"Media liker username: {user.username}")
+            if user.username != cl.username:
                 try:
-                    medias = cl.user_medias(user_fol.pk, 6)
+                    following = cl.user_following(user.pk, 10)
                 except:
-                    current_time()
-                    print("Error when fetch posts. Private account?")
-                    omitted_accounts += 1
-                    time.sleep(600)
+                    print("Exception when user following.")
+                    time.sleep(10800)
                     login_user(cl)
                     continue
-                rate_counter = 0
-                permission_to_save = False
-                for media in medias:
-                    post_created_at = media.taken_at
-                    n_days_ago = datetime.now() - timedelta(days=14)
-                    if (n_days_ago.timestamp() < post_created_at.timestamp()) and (rate_counter <= 5):
-                        rate_counter += 1
-                if rate_counter >= 4:
-                    permission_to_save = True
-                if permission_to_save:
-                    # Do something X% of the time
-                    if probably(0.99):
-                        users_to_follow.append(
-                            'https://www.instagram.com/' + user_fol.username)
-                        time_to_wait = random.randint(180, 420)
-                        time.sleep(time_to_wait)
-                    else:
-                        # Do something else 100-X% of the time
-                        users_to_follow.append(
-                            'https://www.instagram.com/' + user_fol.username)
-                    accounts_to_follow += 1
-                    with open('tofollow.txt', 'r') as tofollow:
-                        link_to_save = 'https://www.instagram.com/' + user_fol.username + '/\n'
-                        if link_to_save in tofollow.read():
-                            current_time()
-                            print(f"{link_to_save} is already saved")
+                following_list_from_dict = [i for i in following.values()]
+                following_list_from_dict[:1]
+                np.random.shuffle(following_list_from_dict)
+                following_list_from_dict[:350]
+                for user_fol in following_list_from_dict:
+                    current_time()
+                    print(
+                        f"Processed accounts: {processed_accounts}; Omitted accounts: {omitted_accounts}; Followed accounts: {followed_accounts}; Accounts to follow: {accounts_to_follow}")
+                    try:
+                        medias = cl.user_medias(user_fol.pk, 6)
+                    except:
+                        current_time()
+                        print("Error when fetch posts. Private account?")
+                        omitted_accounts += 1
+                        time.sleep(600)
+                        login_user(cl)
+                        continue
+                    rate_counter = 0
+                    permission_to_save = False
+                    for media in medias:
+                        post_created_at = media.taken_at
+                        n_days_ago = datetime.now() - timedelta(days=14)
+                        if (n_days_ago.timestamp() < post_created_at.timestamp()) and (rate_counter <= 5):
+                            rate_counter += 1
+                    if rate_counter >= 4:
+                        permission_to_save = True
+                    if permission_to_save:
+                        # Do something X% of the time
+                        if probably(0.99):
+                            users_to_follow.append(
+                                'https://www.instagram.com/' + user_fol.username)
+                            time.sleep(random.randint(180, 420))
                         else:
-                            with open('tofollow.txt', 'a') as tofollow:
-                                tofollow.write(link_to_save)
-                    time.sleep(random.randint(30, 60))
-                else:
-                    omitted_accounts += 1
-                processed_accounts += 1
-                if processed_accounts % 800 == 0:
-                    print("Time to break...")
-                    time.sleep(18000)
-                else:
-                    time.sleep(random.randint(20, 60))
-        time.sleep(random.randint(20, 60))
+                            # Do something else 100-X% of the time
+                            users_to_follow.append(
+                                'https://www.instagram.com/' + user_fol.username)
+                        accounts_to_follow += 1
+                        with open('tofollow.txt', 'r') as tofollow:
+                            link_to_save = 'https://www.instagram.com/' + user_fol.username + '/\n'
+                            if link_to_save in tofollow.read():
+                                current_time()
+                                print(f"{link_to_save} is already saved")
+                            else:
+                                with open('tofollow.txt', 'a') as tofollow:
+                                    tofollow.write(link_to_save)
+                        time.sleep(random.randint(30, 60))
+                    else:
+                        omitted_accounts += 1
+                    processed_accounts += 1
+                    if processed_accounts % 800 == 0:
+                        print("Time to break...")
+                        time.sleep(18000)
+                    else:
+                        time.sleep(random.randint(20, 60))
+            time.sleep(random.randint(20, 60))
 
 
 def getFollowingByUsername():
@@ -438,7 +524,7 @@ def deleteUselessFollowing():
 def main():
     main_menu_title = "  Insta & Sleep.\n  Press Q or Esc to quit. \n"
     main_menu_items = ["Replace caption",
-                       "Like 20 most recent posts by #hashtag", "Create device", "Clear DM comments", "Clear useless Following", "Get more potential followers", "Get Following by username", "Clear useless Following from file", "Quit"]
+                       "Like 20 most recent posts by #hashtag", "Create device", "Clear DM comments",  "Get more potential followers", "Get Following by username", "Clear useless Following from file", "Quit"]
     main_menu_cursor = "# "
     main_menu_cursor_style = ("fg_red", "bold")
     main_menu_style = ("bg_red", "fg_yellow")
@@ -454,13 +540,26 @@ def main():
         clear_screen=False,
     )
 
-    replace_caption_menu_title = "  Choose time.\n  Press Q or Esc to back to main menu. \n"
+    replace_caption_menu_title = "Choose time.\n  Press Q or Esc to back to main menu. \n"
+    get_more_potential_follower_menu_title = "Choose type of strategy.\n  Press Q or Esc to back to main menu. \n"
     replace_caption_menu_items = [
         "ONE_WEEK", "ONE_MONTH", "THREE_MONTHS", "SIX_MONTHS", "ONE_YEAR", "Back to Main Menu"]
+    get_more_potential_follower_menu_items = [
+        "BY USERNAME", "BY LATEST POSTS", "Back to Main Menu"]
     replace_caption_menu_back = False
+    get_more_potential_follower_menu_back = False
     replace_caption_menu = TerminalMenu(
         replace_caption_menu_items,
         title=replace_caption_menu_title,
+        menu_cursor=main_menu_cursor,
+        menu_cursor_style=main_menu_cursor_style,
+        menu_highlight_style=main_menu_style,
+        cycle_cursor=True,
+        clear_screen=False,
+    )
+    get_more_potential_follower_menu = TerminalMenu(
+        get_more_potential_follower_menu_items,
+        title=get_more_potential_follower_menu_title,
         menu_cursor=main_menu_cursor,
         menu_cursor_style=main_menu_cursor_style,
         menu_highlight_style=main_menu_style,
@@ -509,14 +608,23 @@ def main():
         elif main_sel == 3:
             clearDmComments()
         elif main_sel == 4:
-            clearFollowing()
+            while not get_more_potential_follower_menu_back:
+                get_more_potential_follower_sel = get_more_potential_follower_menu.show()
+                if get_more_potential_follower_sel == 0:
+                    get_more_potential_followers(
+                        get_more_potential_follower_menu_items[get_more_potential_follower_sel])
+                elif get_more_potential_follower_sel == 1:
+                    get_more_potential_followers(
+                        get_more_potential_follower_menu_items[get_more_potential_follower_sel])
+                elif get_more_potential_follower_sel == 2 or get_more_potential_follower_sel == None:
+                    get_more_potential_follower_menu_back = True
+                    print("Back selected")
+            get_more_potential_follower_menu_back = False
         elif main_sel == 5:
-            getMorePotentialFollowers()
-        elif main_sel == 6:
             getFollowingByUsername()
-        elif main_sel == 7:
+        elif main_sel == 6:
             deleteUselessFollowing()
-        elif main_sel == 8 or main_sel == None:
+        elif main_sel == 7 or main_sel == None:
             main_menu_exit = True
             print("Quit Selected")
 

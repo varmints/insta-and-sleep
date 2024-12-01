@@ -106,7 +106,7 @@ while True:
             WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
                 (By.CSS_SELECTOR, "svg[aria-label='Notifications']")))
         except Exception as e:
-            print("Error 1")
+            print("Error 1: Possible that you're not logged in")
             print(e)
             break
 
@@ -123,11 +123,11 @@ while True:
                 unfollow_btn.click()
                 time.sleep(random.randint(15, 30))
             except Exception as e:
-                print("Error 2")
+                print("Error 2: Cant see Unfollow button.")
                 print(e)
                 break
         except Exception as e:
-            print("Error 3")
+            print("Cant see Following button.")
             print(e)
             pass
 

@@ -127,7 +127,7 @@ def unfollow_useless_following():
         print("Nothing to unfollow.")
 
 
-def login(driver, login_error_count):
+def login(driver, login_error_count=0):
     if login_error_count >= 2:
         with open("cookies.json", "w") as f:
             f.write("{"+"}")
@@ -293,7 +293,9 @@ while True:
                     EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow Back']")))
                 follow_back_btn.click()
             except:
+                print("Error 6")
                 pass
+            login_error_count = 0
     else:
         print('nok')
         time.sleep(3600)
@@ -318,7 +320,7 @@ while True:
     else:
         time.sleep(random.randint(300, 600))
 
-    if probably(0.7):
+    if probably(0.07):
         unfollow_useless_following()
     else:
         pass

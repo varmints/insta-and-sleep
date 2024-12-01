@@ -121,6 +121,8 @@ def unfollow_useless_following():
             # start writing lines except the first line
             # lines[1:] from line 2 to last line
             fp.writelines(lines[1:])
+
+        print("Unfollowed user: " + first_line)
     else:
         print("Nothing to unfollow.")
 
@@ -311,7 +313,6 @@ while True:
         time.sleep(random.randint(300, 600))
 
     if probably(0.95):
-        print("Unfollow useless following.")
         unfollow_useless_following()
     else:
         pass

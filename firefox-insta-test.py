@@ -175,12 +175,19 @@ while True:
         try:
             follow_btn = WebDriverWait(driver, 20).until(
                 EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow']")))
+        except Exception as e:
+            print("Can't find 'Follow' button.")
+            print(e)
+            to_skip = True
+            pass
+
+        try:
             username = first_line.removeprefix('https://www.instagram.com')
             medias = WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located(
                 (By.XPATH, "//a[starts-with(@href,'"+username+"p/')]")))
             # add reels in future
         except Exception as e:
-            print("Error 2")
+            print("Can't fetch media.")
             print(e)
             to_skip = True
             pass

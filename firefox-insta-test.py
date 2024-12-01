@@ -312,7 +312,7 @@ while True:
     else:
         time.sleep(random.randint(300, 600))
 
-    if probably(0.95):
+    if probably(0.7):
         unfollow_useless_following()
     else:
         pass

@@ -215,6 +215,15 @@ while True:
             pass
 
         try:
+            follow_btn = WebDriverWait(driver, 20).until(
+                EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow']")))
+        except Exception as e:
+            print("Can't find 'Follow' button.")
+            print(e)
+            to_skip = True
+            pass
+
+        try:
             followers = driver.find_element(
                 By.XPATH, "//a[text()[contains(.,'followers')]]/span/span").text
             following = driver.find_element(
@@ -227,15 +236,6 @@ while True:
         except Exception as e:
             print("Error 1")
             print(e)
-            pass
-
-        try:
-            follow_btn = WebDriverWait(driver, 20).until(
-                EC.element_to_be_clickable((By.XPATH, "//div[text()='Follow']")))
-        except Exception as e:
-            print("Can't find 'Follow' button.")
-            print(e)
-            to_skip = True
             pass
 
         try:

@@ -94,7 +94,6 @@ except:
 unfollowed_accounts = 0
 
 while True:
-    to_skip = False
     with open('todelete.txt') as f:
         first_line = f.readline().strip('\n')
     if first_line != '':

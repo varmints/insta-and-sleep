@@ -76,6 +76,55 @@ def loadCookies():
     driver.refresh()  # Refresh Browser after login
 
 
+def unfollow_useless_following():
+    with open('todelete.txt') as f:
+        first_line = f.readline().strip('\n')
+    if first_line != '':
+        print(first_line)
+        driver.get("http://instagram.com/" + first_line)
+        time.sleep(random.randint(10, 15))
+
+        try:
+            WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, "svg[aria-label='Notifications']")))
+        except Exception as e:
+            print("unfollow_useless_following: Possible that you're not logged in")
+            print(e)
+
+        try:
+            following_btn = WebDriverWait(driver, 20).until(
+                EC.element_to_be_clickable((By.XPATH, "//div[text()='Following']")))
+            time.sleep(random.randint(5, 15))
+            following_btn.click()
+            time.sleep(random.randint(15, 30))
+            try:
+                unfollow_btn = WebDriverWait(driver, 20).until(
+                    EC.element_to_be_clickable((By.XPATH, "//span[text()='Unfollow']")))
+                time.sleep(random.randint(5, 15))
+                unfollow_btn.click()
+                time.sleep(random.randint(15, 30))
+            except Exception as e:
+                print("unfollow_useless_following: Cant see Unfollow button.")
+                print(e)
+        except Exception as e:
+            print("Can't see Following button.")
+            print(e)
+            pass
+
+        with open(r'todelete.txt', 'r+') as fp:
+            # read an store all lines into list
+            lines = fp.readlines()
+            # move file pointer to the beginning of a file
+            fp.seek(0)
+            # truncate the file
+            fp.truncate()
+            # start writing lines except the first line
+            # lines[1:] from line 2 to last line
+            fp.writelines(lines[1:])
+    else:
+        print("Nothing to unfollow.")
+
+
 def login(driver):
     with open("creds.txt", "r") as f:
         USERNAME, PASSWORD = f.read().splitlines()
@@ -182,7 +231,8 @@ while True:
             pass
 
         try:
-            username = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//h2/span"))).text
+            username = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, "//h2/span"))).text
             medias = WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located(
                 (By.XPATH, "//a[starts-with(@href,'/"+username+"/p/')]")))
             # add reels in future
@@ -191,36 +241,6 @@ while True:
             print(e)
             to_skip = True
             pass
-
-        # if not to_skip:
-        #     new_post_counter = 0
-        #     for post in medias:
-        #         driver.execute_script(
-        #             "arguments[0].scrollIntoView({block:'center'});", post)
-        #         time.sleep(random.randint(5, 10))
-        #         parent = post.find_element(By.XPATH, "..")
-        #         ActionChains(driver).click(parent).perform()
-        #         time.sleep(random.randint(5, 10))
-        #         try:
-        #             post_created_at = driver.find_element(
-        #                 By.XPATH, "(//time)[last()]").get_attribute("datetime")
-        #             n_days_ago = datetime.now() - timedelta(days=60)
-        #             if (n_days_ago.timestamp() < dateutil.parser.parse(post_created_at).timestamp()):
-        #                 new_post_counter += 1
-
-        #         except Exception as e:
-        #             print(e)
-        #             pass
-
-        #         try:
-        #             close_btn = driver.find_element(
-        #                 By.CSS_SELECTOR, "svg[aria-label='Close']")
-        #             close_btn.click()
-        #         except Exception as e:
-        #             print(e)
-        #             pass
-        #     if new_post_counter < 10:
-        #         to_skip = True
 
         if not to_skip:
             # posts = [media.get_attribute('href') for media in medias]
@@ -289,6 +309,12 @@ while True:
             time.sleep(random.randint(360, 720))
     else:
         time.sleep(random.randint(300, 600))
+
+    if probably(0.95):
+        print("Unfollow useless following.")
+        unfollow_useless_following()
+    else:
+        pass
 
     if processed_accounts % 200 == 0:
         print("Time to break...")

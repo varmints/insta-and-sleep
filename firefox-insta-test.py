@@ -127,7 +127,11 @@ def unfollow_useless_following():
         print("Nothing to unfollow.")
 
 
-def login(driver):
+def login(driver, is_clear_cookies=False):
+    if is_clear_cookies:
+        with open("cookies.json", "w") as f:
+            f.write("{"+"}")
+
     with open("creds.txt", "r") as f:
         USERNAME, PASSWORD = f.read().splitlines()
     driver.get("http://instagram.com")
@@ -177,6 +181,7 @@ processed_accounts = 0
 
 while True:
     to_skip = False
+    login_error_count = 0
     with open('tofollow.txt') as f:
         first_line = f.readline().strip('\n')
     if first_line != '':
@@ -188,16 +193,20 @@ while True:
             WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
                 (By.CSS_SELECTOR, "svg[aria-label='Notifications']")))
         except Exception as e:
+            login_error_count += 1
             current_time()
-            print(e)
+            print("Can't find 'Notifications' button.")
             countdown(3600)
-            login(driver)
+            if login_error_count <= 3:
+                login(driver)
+            else:
+                login(driver, True)
             try:
                 dismiss_btn = WebDriverWait(driver, 20).until(
                     EC.element_to_be_clickable((By.XPATH, "//span[text()='Dismiss']")))
                 dismiss_btn.click()
             except:
-                print("Can't find dismiss button.")
+                print("Can't find 'Dismiss' button.")
             continue
 
         try:
@@ -317,6 +326,6 @@ while True:
     else:
         pass
 
-    if processed_accounts % 200 == 0:
+    if processed_accounts % 120 == 0:
         print("Time to break...")
         time.sleep(14400)

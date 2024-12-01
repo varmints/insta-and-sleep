@@ -182,9 +182,9 @@ while True:
             pass
 
         try:
-            username = first_line.removeprefix('https://www.instagram.com')
+            username = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//h2/span"))).text
             medias = WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located(
-                (By.XPATH, "//a[starts-with(@href,'"+username+"p/')]")))
+                (By.XPATH, "//a[starts-with(@href,'/"+username+"/p/')]")))
             # add reels in future
         except Exception as e:
             print("Can't fetch media.")

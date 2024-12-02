@@ -124,8 +124,6 @@ def unfollow_useless_following(times):
                 fp.writelines(lines[1:])
 
             print("Unfollowed user: " + first_line)
-        else:
-            print("Nothing to unfollow.")
 
 
 def login(driver, login_error_count=0):

@@ -76,55 +76,56 @@ def loadCookies():
     driver.refresh()  # Refresh Browser after login
 
 
-def unfollow_useless_following():
-    with open('todelete.txt') as f:
-        first_line = f.readline().strip('\n')
-    if first_line != '':
-        print(first_line)
-        driver.get("http://instagram.com/" + first_line)
-        time.sleep(random.randint(10, 15))
+def unfollow_useless_following(times):
+    for _ in range(times):
+        with open('todelete.txt') as f:
+            first_line = f.readline().strip('\n')
+        if first_line != '':
+            print(first_line)
+            driver.get("http://instagram.com/" + first_line)
+            time.sleep(random.randint(10, 15))
 
-        try:
-            WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, "svg[aria-label='Notifications']")))
-        except Exception as e:
-            print("unfollow_useless_following: Possible that you're not logged in")
-            print(e)
-
-        try:
-            following_btn = WebDriverWait(driver, 20).until(
-                EC.element_to_be_clickable((By.XPATH, "//div[text()='Following']")))
-            time.sleep(random.randint(5, 15))
-            following_btn.click()
-            time.sleep(random.randint(15, 30))
             try:
-                unfollow_btn = WebDriverWait(driver, 20).until(
-                    EC.element_to_be_clickable((By.XPATH, "//span[text()='Unfollow']")))
-                time.sleep(random.randint(5, 15))
-                unfollow_btn.click()
-                time.sleep(random.randint(15, 30))
+                WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
+                    (By.CSS_SELECTOR, "svg[aria-label='Notifications']")))
             except Exception as e:
-                print("unfollow_useless_following: Cant see Unfollow button.")
+                print("unfollow_useless_following: Possible that you're not logged in")
                 print(e)
-        except Exception as e:
-            print("Can't see Following button.")
-            print(e)
-            pass
 
-        with open(r'todelete.txt', 'r+') as fp:
-            # read an store all lines into list
-            lines = fp.readlines()
-            # move file pointer to the beginning of a file
-            fp.seek(0)
-            # truncate the file
-            fp.truncate()
-            # start writing lines except the first line
-            # lines[1:] from line 2 to last line
-            fp.writelines(lines[1:])
+            try:
+                following_btn = WebDriverWait(driver, 20).until(
+                    EC.element_to_be_clickable((By.XPATH, "//div[text()='Following']")))
+                time.sleep(random.randint(5, 15))
+                following_btn.click()
+                time.sleep(random.randint(15, 30))
+                try:
+                    unfollow_btn = WebDriverWait(driver, 20).until(
+                        EC.element_to_be_clickable((By.XPATH, "//span[text()='Unfollow']")))
+                    time.sleep(random.randint(5, 15))
+                    unfollow_btn.click()
+                    time.sleep(random.randint(15, 30))
+                except Exception as e:
+                    print("unfollow_useless_following: Cant see Unfollow button.")
+                    print(e)
+            except Exception as e:
+                print("Can't see Following button.")
+                print(e)
+                pass
 
-        print("Unfollowed user: " + first_line)
-    else:
-        print("Nothing to unfollow.")
+            with open(r'todelete.txt', 'r+') as fp:
+                # read an store all lines into list
+                lines = fp.readlines()
+                # move file pointer to the beginning of a file
+                fp.seek(0)
+                # truncate the file
+                fp.truncate()
+                # start writing lines except the first line
+                # lines[1:] from line 2 to last line
+                fp.writelines(lines[1:])
+
+            print("Unfollowed user: " + first_line)
+        else:
+            print("Nothing to unfollow.")
 
 
 def login(driver, login_error_count=0):
@@ -321,7 +322,7 @@ while True:
         time.sleep(random.randint(300, 600))
 
     if probably(0.2):
-        unfollow_useless_following()
+        unfollow_useless_following(random.randint(1, 5))
     else:
         pass
 

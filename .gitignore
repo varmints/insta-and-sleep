@@ -1,7 +1,8 @@
 creds.txt
-tofollow.txt
-todelete.txt
-session.json
-cookies.json
-geckodriver.log
+creds.json
+tofollow.txt.*
+todelete.txt.*
+session.json.*
+cookies.json.*
+geckodriver.log.*
 geckodriver

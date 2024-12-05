@@ -268,9 +268,9 @@ def get_more_potential_followers(login_credentials, type):
                     else:
                         omitted_accounts += 1
                     processed_accounts += 1
-                    if processed_accounts % 800 == 0:
+                    if processed_accounts % 700 == 0:
                         print("Time to break...")
-                        time.sleep(18000)
+                        time.sleep(3600)
                     else:
                         time.sleep(random.randint(20, 60))
             time.sleep(random.randint(20, 60))

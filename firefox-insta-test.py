@@ -75,7 +75,6 @@ def unfollow_useless_following(driver, username, times):
         with open('todelete.txt.'+username, 'r') as f:
             first_line = f.readline().strip('\n')
         if first_line != '':
-            print(first_line)
             driver.get("http://instagram.com/" + first_line)
             time.sleep(random.randint(10, 15))
 

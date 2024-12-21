@@ -199,10 +199,11 @@ def endless_growth(login_credentials):
 
     options = Options()
     options.set_preference('intl.accept_languages', 'en-US, en')
+    options.add_argument("-private-window")
     firefox_service = FirefoxService(
         executable_path='./geckodriver', log_output='./geckodriver.log.'+username)
     driver = webdriver.Firefox(service=firefox_service, options=options)
-
+    time.sleep(random.randint(15, 20))
     login(driver, login_credentials)
 
     processed_accounts = 0
@@ -346,7 +347,7 @@ def endless_growth(login_credentials):
             else:
                 time.sleep(random.randint(360, 720))
         else:
-            time.sleep(random.randint(300, 600))
+            time.sleep(random.randint(600, 900))
 
         if probably(0.2):
             unfollow_useless_following(driver, username, random.randint(1, 6))

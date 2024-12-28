@@ -28,13 +28,13 @@ def remove_special_characters(string):
     return re.sub('\W+', '', string)
 
 
-def countdown(t):
-    while t:
-        mins, secs = divmod(t, 60)
-        timer = '{:02d}:{:02d}'.format(mins, secs)
-        print(timer, end="\r")
+def countdown(seconds):
+    while seconds > 0:
+        mins, secs = divmod(seconds, 60)
+        hours, mins = divmod(mins, 60)
+        print('{:02d}:{:02d}:{:02d}'.format(hours, mins, secs), end="\r")
         time.sleep(1)
-        t -= 1
+        seconds -= 1
 
 
 def convert_to_number(text):

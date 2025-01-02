@@ -123,7 +123,7 @@ def get_more_potential_followers(login_credentials, type):
     if type == "BY USERNAME":
         user_to_check = cl.user_info_by_username(user_to_check_input)
         try:
-            followings = cl.user_following(user_to_check.pk, 600)
+            followings = cl.user_following(user_to_check.pk, 1000)
             users = []
             for i, user in enumerate(followings):
                 users.append(user)
@@ -161,7 +161,6 @@ def get_more_potential_followers(login_credentials, type):
                 continue
             try:
                 medias = cl.user_medias(user_fol.pk, 6)
-                print(medias)
             except:
                 current_time()
                 print("Error when fetch posts. Private account?")
@@ -176,7 +175,7 @@ def get_more_potential_followers(login_credentials, type):
                 n_days_ago = datetime.now() - timedelta(days=14)
                 if (n_days_ago.timestamp() < post_created_at.timestamp()) and (rate_counter <= 5):
                     rate_counter += 1
-            if rate_counter >= 4:
+            if rate_counter >= 2:
                 permission_to_save = True
             if permission_to_save:
                 # Do something X% of the time

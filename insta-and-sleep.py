@@ -29,13 +29,12 @@ def remove_special_characters(string):
 
 
 def countdown(t):
-    # define the countdown func.
-    while t:
-        mins, secs = divmod(t, 60)
-        timer = '{:02d}:{:02d}'.format(mins, secs)
-        print(timer, end="\r")
+    while seconds > 0:
+        mins, secs = divmod(seconds, 60)
+        hours, mins = divmod(mins, 60)
+        print('{:02d}:{:02d}:{:02d}'.format(hours, mins, secs), end="\r")
         time.sleep(1)
-        t -= 1
+        seconds -= 1
 
 
 def current_time():
@@ -222,7 +221,7 @@ def get_more_potential_followers(login_credentials, type):
                 following_list_from_dict = [i for i in following.values()]
                 following_list_from_dict[:1]
                 np.random.shuffle(following_list_from_dict)
-                following_list_from_dict[:350]
+                following_list_from_dict[:450]
                 for user_fol in following_list_from_dict:
                     current_time()
                     print(

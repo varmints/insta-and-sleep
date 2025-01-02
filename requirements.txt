@@ -1,0 +1,6 @@
+colorama
+simple_term_menu
+instagrapi
+selenium
+numpy
+pillow

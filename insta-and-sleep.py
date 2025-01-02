@@ -25,7 +25,7 @@ def probably(chance=.5):
 
 
 def remove_special_characters(string):
-    return re.sub('\W+', '', string)
+    return re.sub(r'\W+', '', string)
 
 
 def countdown(t):

@@ -14,6 +14,7 @@ from datetime import datetime
 from pprint import pprint
 from simple_term_menu import TerminalMenu
 
+username_without_special_characters = ''
 
 def current_time():
     now = datetime.now()
@@ -24,8 +25,9 @@ def probably(chance=.5):
     return random.random() < chance
 
 
-def remove_special_characters(string):
-    return re.sub('\W+', '', string)
+def remove_special_characters(username):
+    global username_without_special_characters
+    username_without_special_characters = re.sub(r'\W+', '', username)
 
 
 def countdown(seconds):
@@ -119,41 +121,62 @@ def unfollow_useless_following(driver, username, times):
             print("Unfollowed user: " + first_line)
 
 
-def saveCookies(driver, username):
-    username = remove_special_characters(username)
+def saveCookies(driver):
     # Get and store cookies after login
     cookies = driver.get_cookies()
 
     # Store cookies in a file
-    with open('cookies.json.'+username, 'w') as file:
+    with open('cookies.json.'+username_without_special_characters, 'w') as file:
         json.dump(cookies, file)
     print('New Cookies saved successfully')
 
 
-def loadCookies(driver, username):
-    username = remove_special_characters(username)
+def load_cookies(driver):
+    cookies_filename = "cookies.json."+username_without_special_characters
+
     # Check if cookies file exists
-    if "cookies.json."+username in os.listdir():
+    if cookies_filename in os.listdir():
 
         # Load cookies to a vaiable from a file
-        with open("cookies.json."+username, "r") as file:
+        with open(cookies_filename, "r") as file:
             cookies = json.load(file)
+
 
         # Set stored cookies to maintain the session
         for cookie in cookies:
             driver.add_cookie(cookie)
     else:
-        print("No cookies file found")
+        with open(cookies_filename, 'w') as file:
+            json.dump({}, file)
+            pass
 
     driver.refresh()  # Refresh Browser after login
+
+def accounts_from_suggested_for_you(driver):
+    print('follow_suggested_accounts')
+    WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, "svg[aria-label='Instagram']"))).click()
+    WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
+                (By.XPATH,"//span[text()='See All']"))).click()
+
+    time.sleep(5)
+
+    elements = driver.find_elements(By.XPATH, '//a[@href]')
+    all_links = [element.get_attribute('href') for element in elements]
+    links_without_duplicates = list(dict.fromkeys(all_links))
+    new_account_to_follow = links_without_duplicates[:30]
+
+    with open('tofollow.txt.'+username_without_special_characters, 'w') as f:
+        for account in new_account_to_follow:
+            f.write(str(account) + '\n')
 
 
 def login(driver, login_credentials, is_remove_current_cookies=False):
     username = login_credentials["username"]
 
     if (is_remove_current_cookies):
-        if os.path.exists("cookies.json."+username):
-            os.remove("cookies.json."+username)
+        if os.path.exists("cookies.json."+username_without_special_characters):
+            os.remove("cookies.json."+username_without_special_characters)
         else:
             print("The file does not exist")
 
@@ -161,7 +184,7 @@ def login(driver, login_credentials, is_remove_current_cookies=False):
 
     time.sleep(10)
 
-    loadCookies(driver, username)
+    load_cookies(driver)
 
     time.sleep(10)
     try:
@@ -189,19 +212,23 @@ def login(driver, login_credentials, is_remove_current_cookies=False):
 
         driver.find_element(By.XPATH, "//button[@type='submit']").click()
 
-        time.sleep(15)
+        time.sleep(10)
+
+        driver.find_element(By.XPATH, "//button[text()='Save info']").click()
+
+        time.sleep(10)
 
         saveCookies(driver, username)
 
 
 def endless_growth(login_credentials):
-    username = remove_special_characters(login_credentials["username"])
+    remove_special_characters(login_credentials["username"])
 
     options = Options()
     options.set_preference('intl.accept_languages', 'en-US, en')
-    options.add_argument("-private-window")
+    # options.add_argument("-private-window")
     firefox_service = FirefoxService(
-        executable_path='./geckodriver', log_output='./geckodriver.log.'+username)
+        executable_path='./geckodriver', log_output='./geckodriver.log.'+username_without_special_characters)
     driver = webdriver.Firefox(service=firefox_service, options=options)
     time.sleep(random.randint(15, 20))
     login(driver, login_credentials)
@@ -211,7 +238,7 @@ def endless_growth(login_credentials):
     while True:
         to_skip = False
         login_error_count = 0
-        with open('tofollow.txt.'+username) as f:
+        with open('tofollow.txt.'+username_without_special_characters) as f:
             potential_follower_profile = f.readline().strip('\n')
         if potential_follower_profile != '':
             print(potential_follower_profile)
@@ -308,7 +335,9 @@ def endless_growth(login_credentials):
                         print(e)
                         pass
                     time.sleep(random.randint(4, 8))
-                driver.get(potential_follower_profile)
+                    
+                driver.execute_script(
+                        "window.scrollBy({top: 0, left: 0, behavior: 'smooth' })")
                 time.sleep(random.randint(4, 8))
                 try:
                     follow_btn = WebDriverWait(driver, 20).until(
@@ -326,11 +355,11 @@ def endless_growth(login_credentials):
                     pass
                 login_error_count = 0
         else:
-            print('nok')
-            time.sleep(3600)
+            accounts_from_suggested_for_you(driver)
+            countdown(3600)
             continue
 
-        with open(r'tofollow.txt.'+username, 'r+') as fp:
+        with open(r'tofollow.txt.'+username_without_special_characters, 'r+') as fp:
             # read an store all lines into list
             lines = fp.readlines()
             # move file pointer to the beginning of a file
@@ -350,7 +379,7 @@ def endless_growth(login_credentials):
             time.sleep(random.randint(600, 900))
 
         if probably(0.2):
-            unfollow_useless_following(driver, username, random.randint(1, 6))
+            unfollow_useless_following(driver, random.randint(1, 6))
         else:
             pass
 

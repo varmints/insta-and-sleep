@@ -17,15 +17,16 @@ from datetime import datetime, timedelta
 
 # json.sessions(json.load(resp), indent=2)
 logger = logging.getLogger()
-
+username_without_special_characters = ''
 
 def probably(chance=.5):
     # By default returns True 50% of the time.
     return random.random() < chance
 
 
-def remove_special_characters(string):
-    return re.sub(r'\W+', '', string)
+def remove_special_characters(username):
+    global username_without_special_characters
+    username_without_special_characters = re.sub(r'\W+', '', username)
 
 
 def countdown(t):
@@ -43,7 +44,6 @@ def current_time():
 
 
 def createDevice(login_credentials):
-    username = remove_special_characters(login_credentials["username"])
     print(f"You will be logged in!")
     cl = Client()
     cl.set_locale('pl_PL')
@@ -51,7 +51,7 @@ def createDevice(login_credentials):
     # Los Angeles UTC (GMT) -7 hours == -25200 seconds
     cl.set_timezone_offset(2 * 60 * 60)
     cl.login(login_credentials["username"], login_credentials["password"])
-    cl.dump_settings("session.json."+username)
+    cl.dump_settings("session.json."+username_without_special_characters)
 
 
 def login_user(cl, login_credentials):
@@ -59,9 +59,8 @@ def login_user(cl, login_credentials):
     Attempts to login to Instagram using either the provided session information
     or the provided username and password.
     """
-    username = remove_special_characters(login_credentials["username"])
     cl.delay_range = [5, 15]
-    session = cl.load_settings("session.json."+username)
+    session = cl.load_settings("session.json."+username_without_special_characters)
 
     login_via_session = False
     login_via_pw = False
@@ -108,7 +107,7 @@ def login_user(cl, login_credentials):
 
 
 def get_more_potential_followers(login_credentials, type):
-    login_username = remove_special_characters(login_credentials["username"])
+    remove_special_characters(login_credentials["username"])
     if type == "BY USERNAME":
         print("Type username:")
         user_to_check_input = input()
@@ -190,13 +189,13 @@ def get_more_potential_followers(login_credentials, type):
                     users_to_follow.append(
                         'https://www.instagram.com/' + user_fol.username)
                 accounts_to_follow += 1
-                with open('tofollow.txt.'+login_username, 'r') as tofollow:
+                with open('tofollow.txt.'+username_without_special_characters, 'r') as tofollow:
                     link_to_save = 'https://www.instagram.com/' + user_fol.username + '/\n'
                     if link_to_save in tofollow.read():
                         current_time()
                         print(f"{link_to_save} is already saved")
                     else:
-                        with open('tofollow.txt.'+login_username, 'a') as tofollow:
+                        with open('tofollow.txt.'+username_without_special_characters, 'a') as tofollow:
                             tofollow.write(link_to_save)
                 time.sleep(random.randint(30, 60))
             else:
@@ -206,7 +205,7 @@ def get_more_potential_followers(login_credentials, type):
                 print("Time to break...")
                 time.sleep(18000)
             else:
-                time.sleep(random.randint(20, 60))
+                time.sleep(random.randint(30, 240))
     else:
         for user in users:
             print(f"Media liker username: {user.username}")
@@ -255,13 +254,13 @@ def get_more_potential_followers(login_credentials, type):
                             users_to_follow.append(
                                 'https://www.instagram.com/' + user_fol.username)
                         accounts_to_follow += 1
-                        with open('tofollow.txt.'+login_username, 'r') as tofollow:
+                        with open('tofollow.txt.'+username_without_special_characters, 'r') as tofollow:
                             link_to_save = 'https://www.instagram.com/' + user_fol.username + '/\n'
                             if link_to_save in tofollow.read():
                                 current_time()
                                 print(f"{link_to_save} is already saved")
                             else:
-                                with open('tofollow.txt.'+login_username, 'a') as tofollow:
+                                with open('tofollow.txt.'+username_without_special_characters, 'a') as tofollow:
                                     tofollow.write(link_to_save)
                         time.sleep(random.randint(30, 60))
                     else:
@@ -271,7 +270,7 @@ def get_more_potential_followers(login_credentials, type):
                         print("Time to break...")
                         time.sleep(3600)
                     else:
-                        time.sleep(random.randint(20, 60))
+                        time.sleep(random.randint(30, 180))
             time.sleep(random.randint(20, 60))
 
 

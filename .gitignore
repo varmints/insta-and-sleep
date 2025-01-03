@@ -5,4 +5,5 @@ todelete.txt.*
 session.json.*
 cookies.json.*
 geckodriver.log.*
+geckodriver.log
 geckodriver

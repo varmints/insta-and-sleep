@@ -74,7 +74,7 @@ def check_is_login(driver):
 
 def unfollow_useless_following(driver, times):
     for _ in range(times):
-        with open('todelete.txt.'+username, 'r') as f:
+        with open('todelete.txt.'+username_without_special_characters, 'r') as f:
             first_line = f.readline().strip('\n')
         if first_line != '':
             driver.get("http://instagram.com/" + first_line)
@@ -107,7 +107,7 @@ def unfollow_useless_following(driver, times):
                 print(e)
                 pass
 
-            with open(r'todelete.txt.'+username, 'r+') as fp:
+            with open(r'todelete.txt.'+username_without_special_characters, 'r+') as fp:
                 # read an store all lines into list
                 lines = fp.readlines()
                 # move file pointer to the beginning of a file

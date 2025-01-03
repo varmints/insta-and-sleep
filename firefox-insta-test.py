@@ -72,7 +72,7 @@ def check_is_login(driver):
             print("Can't find 'Dismiss' button")
 
 
-def unfollow_useless_following(driver, username, times):
+def unfollow_useless_following(driver, times):
     for _ in range(times):
         with open('todelete.txt.'+username, 'r') as f:
             first_line = f.readline().strip('\n')

@@ -378,8 +378,8 @@ def endless_growth(login_credentials):
         else:
             time.sleep(random.randint(600, 900))
 
-        if probably(0.2):
-            unfollow_useless_following(driver, random.randint(1, 6))
+        if probably(0.25):
+            unfollow_useless_following(driver, random.randint(1, 5))
         else:
             pass
 

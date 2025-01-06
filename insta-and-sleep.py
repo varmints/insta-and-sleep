@@ -346,9 +346,9 @@ def main():
     while not main_menu_exit:
         main_sel_user = main_menu_choose_user.show()
 
-        main_sel = main_menu.show()
-
         remove_special_characters(users[main_sel_user]["username"])
+
+        main_sel = main_menu.show()
 
         if main_sel == 0:
             createDevice(users[main_sel_user])

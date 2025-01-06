@@ -281,7 +281,7 @@ def get_media_likers(login_credentials):
     media_pk = cl.media_pk_from_url(media_link)
     potential_followers = cl.media_likers(media_pk)
 
-    with open('tofollow.txt.'+username_without_special_characters, 'w') as tofollow:
+    with open('tofollow.txt.'+username_without_special_characters, 'r+') as tofollow:
         for potential_follower in potential_followers:
             link_to_save = 'https://www.instagram.com/' + potential_follower.username + '/\n'
             if link_to_save in tofollow.read():

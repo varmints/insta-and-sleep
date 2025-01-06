@@ -224,7 +224,7 @@ def login(driver, login_credentials, is_remove_current_cookies=False):
 
         time.sleep(10)
 
-        saveCookies(driver, username)
+        saveCookies(driver)
 
 
 def endless_growth(login_credentials):

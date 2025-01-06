@@ -272,6 +272,21 @@ def get_more_potential_followers(login_credentials, type):
                         time.sleep(random.randint(30, 180))
             time.sleep(random.randint(20, 60))
 
+def get_media_likers(login_credentials):
+    print("Type media id:")
+    media_id = input()
+    cl = Client()
+    login_user(cl, login_credentials)
+    potential_followers = cl.media_likers(media_id)
+
+    with open('tofollow.txt.'+username_without_special_characters, 'r+') as tofollow:
+        link_to_save = 'https://www.instagram.com/' + potential_followers.username + '/\n'
+        if link_to_save in tofollow.read():
+            current_time()
+            print(f"{link_to_save} is already saved")
+        else:
+            with open('tofollow.txt.'+username_without_special_characters, 'a') as tofollow:
+                tofollow.write(link_to_save)
 
 def main():
     with open("creds.json", mode="r", encoding="utf-8") as f:
@@ -283,7 +298,7 @@ def main():
 
     main_menu_title = "  Insta & Sleep.\n  Press Q or Esc to quit. \n"
     main_menu_items = ["Create device",
-                       "Get more potential followers", "Quit"]
+                       "Get more potential followers", "Get media likers" "Quit"]
     main_menu_cursor = "# "
     main_menu_cursor_style = ("fg_red", "bold")
     main_menu_style = ("bg_red", "fg_yellow")
@@ -343,7 +358,9 @@ def main():
                     get_more_potential_follower_menu_back = True
                     print("Back selected")
             get_more_potential_follower_menu_back = False
-        elif main_sel == 2 or main_sel == None:
+        elif main_sel == 2:
+            get_media_likers(users[main_sel_user])
+        elif main_sel == 3 or main_sel == None:
             main_menu_exit = True
             print("Quit Selected")
 

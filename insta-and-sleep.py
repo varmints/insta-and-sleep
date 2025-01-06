@@ -107,7 +107,6 @@ def login_user(cl, login_credentials):
 
 
 def get_more_potential_followers(login_credentials, type):
-    remove_special_characters(login_credentials["username"])
     if type == "BY USERNAME":
         print("Type username:")
         user_to_check_input = input()
@@ -348,6 +347,8 @@ def main():
         main_sel_user = main_menu_choose_user.show()
 
         main_sel = main_menu.show()
+
+        remove_special_characters(users[main_sel_user]["username"])
 
         if main_sel == 0:
             createDevice(users[main_sel_user])

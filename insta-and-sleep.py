@@ -281,18 +281,15 @@ def get_media_likers(login_credentials):
     media_pk = cl.media_pk_from_url(media_link)
     potential_followers = cl.media_likers(media_pk)
 
-    try:
-        with open('tofollow.txt.'+username_without_special_characters, 'x') as tofollow:
-            for potential_follower in potential_followers:
-                link_to_save = 'https://www.instagram.com/' + potential_follower.username + '/\n'
-                if link_to_save in tofollow.read():
-                    current_time()
-                    print(f"{link_to_save} is already saved")
-                else:
-                    with open('tofollow.txt.'+username_without_special_characters, 'a') as tofollow:
-                        tofollow.write(link_to_save)
-    except FileExistsError:
-        print("File already exists.")
+    with open('tofollow.txt.'+username_without_special_characters, 'w') as tofollow:
+        for potential_follower in potential_followers:
+            link_to_save = 'https://www.instagram.com/' + potential_follower.username + '/\n'
+            if link_to_save in tofollow.read():
+                current_time()
+                print(f"{link_to_save} is already saved")
+            else:
+                with open('tofollow.txt.'+username_without_special_characters, 'a') as tofollow:
+                    tofollow.write(link_to_save)
 
 def main():
     with open("creds.json", mode="r", encoding="utf-8") as f:

@@ -298,7 +298,7 @@ def main():
 
     main_menu_title = "  Insta & Sleep.\n  Press Q or Esc to quit. \n"
     main_menu_items = ["Create device",
-                       "Get more potential followers", "Get media likers" "Quit"]
+                       "Get more potential followers", "Get media likers", "Quit"]
     main_menu_cursor = "# "
     main_menu_cursor_style = ("fg_red", "bold")
     main_menu_style = ("bg_red", "fg_yellow")

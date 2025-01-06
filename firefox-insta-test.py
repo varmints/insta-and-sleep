@@ -154,8 +154,14 @@ def load_cookies(driver):
 
 def accounts_from_suggested_for_you(driver):
     print('follow_suggested_accounts')
-    WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, "svg[aria-label='Instagram']"))).click()
+
+    # WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
+    #     (By.CSS_SELECTOR, "svg[aria-label='Instagram']"))).click()
+
+    driver.get("http://instagram.com")
+
+    time.sleep(5)
+
     WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
                 (By.XPATH,"//span[text()='See All']"))).click()
 

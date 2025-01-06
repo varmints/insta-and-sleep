@@ -273,15 +273,14 @@ def get_more_potential_followers(login_credentials, type):
             time.sleep(random.randint(20, 60))
 
 def get_media_likers(login_credentials):
-    print("Type Instagram username:")
-    instagram_username = input()
-
+    print("Type media link:")
+    media_link = input()
+    
     cl = Client()
     login_user(cl, login_credentials)
 
-    instagram_user_info = cl.user_info_by_username(instagram_username)
-    instagram_user_medias = cl.user_medias(instagram_user_info.user_id, 3)
-    potential_followers = cl.media_likers(instagram_user_medias[random.randint(0, 2)].id)
+    media_pk = cl.media_pk_from_url(media_link)
+    potential_followers = cl.media_likers(media_pk)
 
     with open('tofollow.txt.'+username_without_special_characters, 'r+') as tofollow:
         link_to_save = 'https://www.instagram.com/' + potential_followers.username + '/\n'

@@ -244,7 +244,7 @@ def endless_growth(login_credentials):
     while True:
         to_skip = False
         login_error_count = 0
-        with open('tofollow.txt.'+username_without_special_characters) as f:
+        with open('tofollow.txt.'+username_without_special_characters, 'r') as f:
             potential_follower_profile = f.readline().strip('\n')
         if potential_follower_profile != '':
             print(potential_follower_profile)
@@ -384,7 +384,7 @@ def endless_growth(login_credentials):
         else:
             time.sleep(random.randint(600, 900))
 
-        if probably(0.25):
+        if probably(0.3):
             unfollow_useless_following(driver, random.randint(1, 5))
         else:
             pass

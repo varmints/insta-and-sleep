@@ -155,25 +155,20 @@ def load_cookies(driver):
 def accounts_from_suggested_for_you(driver):
     print('follow_suggested_accounts')
 
-    # WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
-    #     (By.CSS_SELECTOR, "svg[aria-label='Instagram']"))).click()
-
-    driver.get("http://instagram.com")
-
-    time.sleep(5)
+    WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
+        (By.CSS_SELECTOR, "svg[aria-label='Instagram']"))).click()
 
     WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
                 (By.XPATH,"//span[text()='See All']"))).click()
 
     time.sleep(5)
 
-    elements = driver.find_elements(By.XPATH, '//a[@href]')
-    all_links = [element.get_attribute('href') for element in elements]
-    links_without_duplicates = list(dict.fromkeys(all_links))
-    new_account_to_follow = links_without_duplicates[:30]
+    elements = driver.find_elements(By.XPATH, '//main//a[@href]')
+    new_account_to_follow = [element.get_attribute('href') for element in elements]
+    new_account_to_follow_without_duplicates = list(dict.fromkeys(new_account_to_follow))
 
     with open('tofollow.txt.'+username_without_special_characters, 'w') as f:
-        for account in new_account_to_follow:
+        for account in new_account_to_follow_without_duplicates:
             f.write(str(account) + '\n')
 
 

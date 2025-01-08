@@ -57,6 +57,28 @@ def convert_to_number(text):
     return int(text)
 
 
+def check_necessary_files_exist():
+    try:
+        with open("todelete.txt." + username_without_special_characters, "x") as f:
+            print(
+                "File todelete.txt."
+                + username_without_special_characters
+                + " has been created."
+            )
+    except FileExistsError:
+        pass
+
+    try:
+        with open("tofollow.txt." + username_without_special_characters, "x") as f:
+            print(
+                "File tofollow.txt."
+                + username_without_special_characters
+                + " has been created."
+            )
+    except FileExistsError:
+        pass
+
+
 def check_is_login():
     try:
         WebDriverWait(driver, 20).until(
@@ -203,9 +225,12 @@ def see_stories_from_homepage():
 
     time.sleep(random.randint(20, 90))
 
-    WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, "svg[aria-label='Close']"))
-    ).click()
+    try:
+        WebDriverWait(driver, 20).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "svg[aria-label='Close']"))
+        ).click()
+    except Exception:
+        pass
 
     time.sleep(5)
 
@@ -265,8 +290,6 @@ def login(login_credentials, is_remove_current_cookies=False):
 
 
 def endless_growth(login_credentials):
-    remove_special_characters(login_credentials["username"])
-
     options = Options()
     options.set_preference("intl.accept_languages", "en-US, en")
     # options.add_argument("-private-window")
@@ -500,9 +523,13 @@ def main():
     )
 
     while not main_menu_exit:
-        main_sel = main_menu.show()
+        main_sel_user = main_menu.show()
 
-        endless_growth(users[main_sel])
+        remove_special_characters(users[main_sel_user]["username"])
+
+        check_necessary_files_exist()
+
+        endless_growth(users[main_sel_user])
 
 
 if __name__ == "__main__":

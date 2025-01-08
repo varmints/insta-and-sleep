@@ -201,11 +201,13 @@ def see_stories_from_homepage():
         EC.element_to_be_clickable((By.XPATH, "//ul/li/div/div"))
     ).click()
 
-    time.sleep(random.randint(30, 90))
+    time.sleep(random.randint(20, 90))
 
     WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, "svg[aria-label='Close']"))
     ).click()
+
+    time.sleep(5)
 
 
 def login(login_credentials, is_remove_current_cookies=False):

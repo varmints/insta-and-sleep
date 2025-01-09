@@ -124,7 +124,7 @@ def unfollow_useless_following(times):
                 )
                 time.sleep(random.randint(5, 15))
                 following_btn.click()
-                time.sleep(random.randint(15, 30))
+                time.sleep(random.randint(5, 20))
                 try:
                     unfollow_btn = WebDriverWait(driver, 20).until(
                         EC.element_to_be_clickable(
@@ -133,7 +133,7 @@ def unfollow_useless_following(times):
                     )
                     time.sleep(random.randint(5, 15))
                     unfollow_btn.click()
-                    time.sleep(random.randint(15, 30))
+                    time.sleep(random.randint(5, 20))
                 except Exception as e:
                     print("unfollow_useless_following: Cant see Unfollow button")
                     print(e)
@@ -215,21 +215,33 @@ def accounts_from_suggested_for_you():
 def see_stories_from_homepage():
     print("see_stories_from_homepage")
 
-    WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, "svg[aria-label='Instagram']"))
-    ).click()
+    try:
+        WebDriverWait(driver, 20).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "svg[aria-label='Instagram']"))
+        ).click()
+    except Exception as e:
+        print(e)
+        driver.get("http://instagram.com")
+        pass
 
-    WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable((By.XPATH, "//ul/li/div/div"))
-    ).click()
+    try:
+        WebDriverWait(driver, 20).until(
+            EC.element_to_be_clickable((By.XPATH, "//ul/li/div/div"))
+        ).click()
+    except Exception as e:
+        print(e)
+        print("Can't see stories canvas")
+        pass
 
-    time.sleep(random.randint(20, 90))
+    time.sleep(random.randint(20, 70))
 
     try:
         WebDriverWait(driver, 20).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, "svg[aria-label='Close']"))
         ).click()
-    except Exception:
+    except Exception as e:
+        print(e)
+        print("Can't see close button")
         pass
 
     time.sleep(5)
@@ -307,11 +319,6 @@ def endless_growth(login_credentials):
     while True:
         to_skip = False
         login_error_count = 0
-
-        if probably(0.99):
-            see_stories_from_homepage()
-        else:
-            pass
 
         with open("tofollow.txt." + username_without_special_characters, "r") as f:
             potential_follower_profile = f.readline().strip("\n")

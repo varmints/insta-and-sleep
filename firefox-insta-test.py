@@ -191,13 +191,23 @@ def load_cookies():
 def accounts_from_suggested_for_you():
     print("accounts_from_suggested_for_you")
 
-    WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, "svg[aria-label='Instagram']"))
-    ).click()
+    try:
+        WebDriverWait(driver, 20).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "svg[aria-label='Instagram']"))
+        ).click()
+    except Exception as e:
+        print(e)
+        driver.get("http://instagram.com")
+        pass
 
-    WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable((By.XPATH, "//span[text()='See All']"))
-    ).click()
+    try:
+        WebDriverWait(driver, 20).until(
+            EC.element_to_be_clickable((By.XPATH, "//span[text()='See All']"))
+        ).click()
+    except Exception as e:
+        print(e)
+        print("Can't see See more button")
+        pass
 
     time.sleep(5)
 

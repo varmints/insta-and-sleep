@@ -492,10 +492,7 @@ def endless_growth(login_credentials):
             fp.writelines(lines[1:])
         processed_accounts += 1
         if to_skip:
-            if probably(0.95):
-                time.sleep(random.randint(20, 60))
-            else:
-                time.sleep(random.randint(360, 720))
+            time.sleep(random.randint(20, 60))
         else:
             time.sleep(random.randint(600, 900))
 

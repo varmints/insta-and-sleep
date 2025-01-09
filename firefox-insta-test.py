@@ -231,8 +231,11 @@ def see_stories_from_homepage():
         ).click()
     except Exception as e:
         print(e)
+        print("Can't see Instagram logo")
         driver.get("http://instagram.com")
         pass
+
+    time.sleep(5)
 
     try:
         WebDriverWait(driver, 20).until(
@@ -243,7 +246,7 @@ def see_stories_from_homepage():
         print("Can't see stories canvas")
         pass
 
-    time.sleep(random.randint(20, 70))
+    time.sleep(random.randint(20,90))
 
     try:
         WebDriverWait(driver, 20).until(

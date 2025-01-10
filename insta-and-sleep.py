@@ -40,8 +40,7 @@ def countdown(seconds):
 
 
 def current_time():
-    now = datetime.now()
-    return print(now)
+    return print(datetime.now().isoformat(sep=" ", timespec="seconds"))
 
 
 def createDevice(login_credentials):

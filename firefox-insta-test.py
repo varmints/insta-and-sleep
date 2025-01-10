@@ -19,8 +19,7 @@ driver = webdriver
 
 
 def current_time():
-    now = datetime.now()
-    return print(now)
+    return print(datetime.now().isoformat(sep=" ", timespec="seconds"))
 
 
 def probably(chance=0.5):
@@ -191,6 +190,8 @@ def load_cookies():
 def accounts_from_suggested_for_you():
     print("accounts_from_suggested_for_you")
 
+    time.sleep(5)
+
     try:
         WebDriverWait(driver, 20).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, "svg[aria-label='Instagram']"))
@@ -199,6 +200,8 @@ def accounts_from_suggested_for_you():
         print(e)
         driver.get("http://instagram.com")
         pass
+
+    time.sleep(5)
 
     try:
         WebDriverWait(driver, 20).until(
@@ -223,7 +226,10 @@ def accounts_from_suggested_for_you():
 
 
 def see_stories_from_homepage():
-    print("see_stories_from_homepage")
+    print("Start of viewing stories")
+    current_time()
+
+    time.sleep(5)
 
     try:
         WebDriverWait(driver, 20).until(
@@ -258,6 +264,9 @@ def see_stories_from_homepage():
         pass
 
     time.sleep(5)
+
+    current_time()
+    print("End of viewing stories")
 
 
 def login(login_credentials, is_remove_current_cookies=False):

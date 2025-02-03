@@ -212,7 +212,7 @@ def accounts_from_suggested_for_you():
         print("Can't see See more button")
         pass
 
-    time.sleep(5)
+    time.sleep(15)
 
     elements = driver.find_elements(By.XPATH, "//main//a[@href]")
     new_account_to_follow = [element.get_attribute("href") for element in elements]
@@ -229,7 +229,7 @@ def see_stories_from_homepage():
     print("Start of viewing stories")
     current_time()
 
-    time.sleep(5)
+    time.sleep(10)
 
     try:
         WebDriverWait(driver, 20).until(
@@ -241,7 +241,7 @@ def see_stories_from_homepage():
         driver.get("http://instagram.com")
         pass
 
-    time.sleep(5)
+    time.sleep(10)
 
     try:
         WebDriverWait(driver, 20).until(
@@ -252,7 +252,7 @@ def see_stories_from_homepage():
         print("Can't see stories canvas")
         pass
 
-    time.sleep(random.randint(20,90))
+    time.sleep(random.randint(20,120))
 
     try:
         WebDriverWait(driver, 20).until(
@@ -263,7 +263,7 @@ def see_stories_from_homepage():
         print("Can't see close button")
         pass
 
-    time.sleep(5)
+    time.sleep(10)
 
     current_time()
     print("End of viewing stories")

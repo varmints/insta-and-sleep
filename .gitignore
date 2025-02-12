@@ -7,3 +7,5 @@ cookies.json.*
 geckodriver.log.*
 geckodriver.log
 geckodriver
+__pycache__
+.DS_Store

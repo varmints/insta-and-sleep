@@ -316,7 +316,10 @@ def login(login_credentials, is_remove_current_cookies=False):
 
         time.sleep(10)
 
-        driver.find_element(By.XPATH, "//button[text()='Save info']").click()
+        try:
+            driver.find_element(By.XPATH, "//button[text()='Save info']").click()
+        except:
+            pass
 
         time.sleep(10)
 
@@ -508,7 +511,7 @@ def endless_growth(login_credentials):
         else:
             time.sleep(random.randint(600, 900))
 
-        if probably(0.3):
+        if probably(0.25):
             unfollow_useless_following(random.randint(1, 5))
         else:
             pass
